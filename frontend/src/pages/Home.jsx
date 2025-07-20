@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Users,
   Star,
@@ -19,8 +19,40 @@ import {
 } from "lucide-react";
 import eventHero from "../assets/event1.jpg";
 import eventCta from "../assets/event2.jpg";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import {
+  MapPin,
+  Tag,
+  DollarSign,
+  Image as ImageIcon,
+  CalendarCheck as CalendarIcon,
+} from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
 
 const Home = () => {
+  const [previewPackages, setPreviewPackages] = React.useState([]);
+  const [loadingPreview, setLoadingPreview] = React.useState(true);
+  const { backendURL } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const fetchPreview = async () => {
+      setLoadingPreview(true);
+      try {
+        const res = await axios.get(backendURL + "/api/packages");
+        console.log("Packages API response:", res.data);
+        setPreviewPackages(res.data.data?.slice(0, 3) || []);
+      } catch {
+        setPreviewPackages([]);
+      } finally {
+        setLoadingPreview(false);
+      }
+    };
+    fetchPreview();
+  }, []);
+
   return (
     <div className="max-w-5xl mx-auto py-12 px-4 space-y-20">
       {/* Hero Section */}
@@ -219,6 +251,76 @@ const Home = () => {
               smooth performance.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Packages Preview Section */}
+      <section>
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text mb-8 text-center">
+          Featured Event Packages
+        </h2>
+        {loadingPreview ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <LoadingSkeleton key={i} type="card" />
+            ))}
+          </div>
+        ) : previewPackages.length === 0 ? (
+          <div className="text-center text-gray-500 font-semibold py-8">
+            No packages available yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-6">
+            {previewPackages.map((pkg) => (
+              <div
+                key={pkg._id}
+                className="bg-white rounded-2xl shadow-lg p-5 flex flex-col h-full border border-blue-100 hover:shadow-xl transition group"
+              >
+                <div className="w-full h-40 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                  {pkg.image ? (
+                    <img
+                      src={pkg.image}
+                      alt={pkg.title}
+                      className="object-cover w-full h-full rounded-xl group-hover:scale-105 transition"
+                    />
+                  ) : (
+                    <ImageIcon className="w-12 h-12 text-blue-300" />
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-blue-800 mb-1 truncate">
+                  {pkg.title}
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <Tag className="w-4 h-4 text-purple-500" />
+                  <span>{pkg.category?.name || "-"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <MapPin className="w-4 h-4 text-blue-500" />
+                  <span>{pkg.location}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                  <DollarSign className="w-4 h-4 text-green-500" />
+                  <span className="font-semibold text-green-700">
+                    Ksh {pkg.price}
+                  </span>
+                </div>
+                <button
+                  onClick={() => navigate("/packages")}
+                  className="mt-auto flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition"
+                >
+                  <CalendarIcon className="w-4 h-4" /> View & Book
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex justify-center">
+          <button
+            onClick={() => navigate("/packages")}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold px-6 py-3 rounded-full shadow hover:from-blue-700 hover:to-purple-700 transition"
+          >
+            See All Packages
+          </button>
         </div>
       </section>
 

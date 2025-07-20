@@ -13,6 +13,7 @@ const getUserData = async (req, res) => {
     res.json({
       success: true,
       userData: {
+        _id: user._id, // or id: user._id,
         username: user.username,
         role: user.role,
       },

@@ -1,24 +1,41 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
-import { User, Mail, Lock, Sparkles } from "lucide-react";
+import { User, Mail, Lock, Sparkles, Loader2 } from "lucide-react";
+import {
+  showSuccess,
+  showError,
+  showLoading,
+  updateToast,
+  successMessages,
+  errorMessages,
+} from "../utils/toast";
 
 const Login = () => {
   const navigate = useNavigate();
-
   const { backendURL, setIsLoggedIn, getUserData } = useContext(AuthContext);
+
   const [state, setState] = useState("Sign Up");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("client");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    try {
       e.preventDefault();
+
+    if (isLoading) return;
+
+    setIsLoading(true);
+    const loadingToast = showLoading(
+      state === "Sign Up" ? "Creating account..." : "Logging in..."
+    );
+
+    try {
       axios.defaults.withCredentials = true;
+
       if (state === "Sign Up") {
         const { data } = await axios.post(backendURL + "/api/auth/register", {
           username: name,
@@ -26,34 +43,46 @@ const Login = () => {
           password,
           role,
         });
+
         if (data.success) {
-          toast.success(data.message);
+          updateToast(loadingToast, "success", successMessages.login);
           setIsLoggedIn(true);
           getUserData();
           navigate("/");
         } else {
-          return toast.error(data.message);
+          updateToast(
+            loadingToast,
+            "error",
+            data.message || errorMessages.createFailed
+          );
         }
       } else {
         const { data } = await axios.post(backendURL + "/api/auth/login", {
           email,
           password,
         });
+
         if (data.success) {
-          toast.success(data.message);
+          updateToast(loadingToast, "success", successMessages.login);
           setIsLoggedIn(true);
           getUserData();
           navigate("/");
         } else {
-          return toast.error(data.message);
+          updateToast(
+            loadingToast,
+            "error",
+            data.message || errorMessages.loginFailed
+          );
         }
       }
     } catch (error) {
-      const msg =
+      const errorMessage =
         error.response?.data?.message ||
         error.message ||
-        "Something went wrong";
-      toast.error(msg);
+        errorMessages.serverError;
+      updateToast(loadingToast, "error", errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -94,6 +123,7 @@ const Login = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="flex-1 bg-transparent text-gray-800 placeholder-gray-400 outline-none"
+                  disabled={isLoading}
                 />
               </div>
               {/* Role Selector */}
@@ -106,6 +136,7 @@ const Login = () => {
                   onChange={(e) => setRole(e.target.value)}
                   className="flex-1 bg-transparent text-gray-800 placeholder-gray-400 outline-none border-none focus:ring-0"
                   required
+                  disabled={isLoading}
                 >
                   <option value="client">Client</option>
                   <option value="planner">Planner</option>
@@ -123,6 +154,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="flex-1 bg-transparent text-gray-800 placeholder-gray-400 outline-none"
+              disabled={isLoading}
             />
           </div>
 
@@ -135,6 +167,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="flex-1 bg-transparent text-gray-800 placeholder-gray-400 outline-none"
+              disabled={isLoading}
             />
           </div>
 
@@ -147,9 +180,17 @@ const Login = () => {
 
           <button
             type="submit"
-            className="bg-gradient-to-r from-indigo-500 to-purple-700 text-white py-2 font-medium rounded-full w-full hover:from-indigo-600 hover:to-purple-800 transition duration-300 shadow"
+            disabled={isLoading}
+            className="bg-gradient-to-r from-indigo-500 to-purple-700 text-white py-2 font-medium rounded-full w-full hover:from-indigo-600 hover:to-purple-800 transition duration-300 shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            {state}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                {state === "Sign Up" ? "Creating..." : "Logging in..."}
+              </>
+            ) : (
+              state
+            )}
           </button>
 
           <p className="text-sm text-gray-600 mt-4">

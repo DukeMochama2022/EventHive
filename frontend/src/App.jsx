@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -13,37 +14,104 @@ import Dashboard from "./pages/Dashboard";
 import Footer from "./pages/Footer";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardLayout from "./pages/Dashboard";
+import PackageForm from "./pages/PackageForm";
+import PackageList from "./pages/PackageList";
+import PackageEditForm from "./pages/PackageEditForm";
+import CategoryManager from "./pages/CategoryManager";
+import NotFound from "./pages/NotFound";
+import Unauthorized from "./pages/Unauthorized";
+import PublicPackages from "./pages/PublicPackages";
+import BookingsList from "./pages/BookingsList";
+import PlannerBookingsList from "./pages/PlannerBookingsList";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
+import PackageDetails from "./pages/PackageDetails";
+import Analytics from "./pages/Analytics";
 
 function AppContent() {
   const location = useLocation();
+  const { userData } = useContext(AuthContext);
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div
-        className={`flex-1 ${location.pathname !== "/login" ? "pb-70" : ""}`}
+        className={`flex-1 ${
+          location.pathname !== "/login" &&
+          !location.pathname.startsWith("/dashboard")
+            ? "pb-70"
+            : ""
+        }`}
       >
         <Routes>
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home/>
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/" element={<Home />} />
+          <Route path="/packages" element={<PublicPackages />} />
+          <Route path="/packages/:id" element={<PackageDetails />} />
           <Route path="/login" element={<Login />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route element={<DashboardLayout />}>
+            {/* Role-based dashboard redirect */}
+            <Route
+              path="/dashboard"
+              element={
+                userData?.role === "client" ? (
+                  <Navigate to="/dashboard/bookings" replace />
+                ) : (
+                  <Navigate to="/dashboard/packages" replace />
+                )
+              }
+            />
+            {/* Client route */}
+            {userData?.role === "client" && (
+              <Route path="/dashboard/bookings" element={<BookingsList />} />
+            )}
+            {/* Planner/Admin routes */}
+            {(userData?.role === "planner" || userData?.role === "admin") && (
+              <>
+                <Route path="/dashboard/packages" element={<PackageList />} />
+                <Route
+                  path="/dashboard/packages/create"
+                  element={<PackageForm />}
+                />
+                <Route
+                  path="/dashboard/packages/edit/:id"
+                  element={<PackageEditForm />}
+                />
+                <Route
+                  path="/dashboard/categories"
+                  element={<CategoryManager />}
+                />
+                <Route
+                  path="/dashboard/bookings"
+                  element={<PlannerBookingsList />}
+                />
+                <Route path="/dashboard/analytics" element={<Analytics />} />
+              </>
+            )}
+          </Route>
+          {/* Catch all route for 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-      {location.pathname !== "/login" && <Footer />}
-      <ToastContainer position="top-right" autoClose={2000} />
+      {/* Hide Footer on /login and any /dashboard route */}
+      {location.pathname !== "/login" &&
+        !location.pathname.startsWith("/dashboard") && <Footer />}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        toastStyle={{
+          borderRadius: "8px",
+          fontSize: "14px",
+        }}
+      />
     </div>
   );
 }

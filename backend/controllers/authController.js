@@ -7,6 +7,12 @@ const signup = async (req, res) => {
   const { username, password, email, role } = req.body;
 
   try {
+    if (!username || !password || !email || !role) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing details!" });
+    }
+
     const exists = await User.findOne({ email });
     if (exists) {
       return res
@@ -48,6 +54,12 @@ const signup = async (req, res) => {
 //login logic
 const login = async (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Email and password are required!" });
+  }
 
   try {
     const user = await User.findOne({ email });
@@ -96,4 +108,4 @@ const isAuthenticated = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, logout,isAuthenticated };
+module.exports = { signup, login, logout, isAuthenticated };
