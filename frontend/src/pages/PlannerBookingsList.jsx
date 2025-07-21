@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import { showError, showSuccess } from "../utils/toast";
+import ChatWindow from "../components/ChatWindow";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -30,6 +31,7 @@ const PlannerBookingsList = () => {
   const [error, setError] = useState("");
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [chatBooking, setChatBooking] = useState(null);
 
   useEffect(() => {
     fetchBookings();
@@ -173,6 +175,12 @@ const PlannerBookingsList = () => {
                   className="flex items-center gap-1 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium text-sm transition"
                 >
                   <Eye className="w-4 h-4" /> Details
+                </button>
+                <button
+                  onClick={() => setChatBooking(booking)}
+                  className="flex items-center gap-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition"
+                >
+                  Chat
                 </button>
                 {booking.status === "pending" && (
                   <>
@@ -328,6 +336,13 @@ const PlannerBookingsList = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {chatBooking && (
+        <ChatWindow
+          booking={chatBooking}
+          onClose={() => setChatBooking(null)}
+        />
       )}
     </div>
   );

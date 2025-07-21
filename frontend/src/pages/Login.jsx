@@ -24,7 +24,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-      e.preventDefault();
+    e.preventDefault();
 
     if (isLoading) return;
 
@@ -45,6 +45,9 @@ const Login = () => {
         });
 
         if (data.success) {
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
           updateToast(loadingToast, "success", successMessages.login);
           setIsLoggedIn(true);
           getUserData();
@@ -63,6 +66,9 @@ const Login = () => {
         });
 
         if (data.success) {
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
           updateToast(loadingToast, "success", successMessages.login);
           setIsLoggedIn(true);
           getUserData();

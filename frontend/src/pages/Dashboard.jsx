@@ -8,12 +8,14 @@ import {
   CalendarCheck2,
   BarChart2,
 } from "lucide-react";
+import useUnreadCount from "../hooks/useUnreadCount";
 
 const Sidebar = () => {
   const { userData } = useContext(AuthContext);
   const isAdmin = userData?.role === "admin";
   const isPlanner = userData?.role === "planner";
   const isClient = userData?.role === "client";
+  const { unreadCount } = useUnreadCount();
 
   return (
     <aside className="w-64 h-screen fixed top-0 left-0 bg-gradient-to-b from-blue-700 via-purple-700 to-blue-900 border-r shadow-lg p-0 hidden md:flex flex-col z-30">
@@ -77,6 +79,11 @@ const Sidebar = () => {
             >
               <CalendarCheck2 className="w-5 h-5" />
               Manage Bookings
+              {unreadCount > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
             </NavLink>
             {isAdmin && (
               <NavLink
@@ -108,6 +115,11 @@ const Sidebar = () => {
           >
             <CalendarCheck2 className="w-5 h-5" />
             My Bookings
+            {unreadCount > 0 && (
+              <span className="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                {unreadCount}
+              </span>
+            )}
           </NavLink>
         )}
       </nav>

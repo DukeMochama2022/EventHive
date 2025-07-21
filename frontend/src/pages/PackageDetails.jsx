@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import { showError, showInfo } from "../utils/toast";
+import ChatWindow from "../components/ChatWindow";
 
 const PackageDetails = () => {
   const { id } = useParams();
@@ -32,12 +33,33 @@ const PackageDetails = () => {
   const [editingReview, setEditingReview] = useState(null);
   const [editForm, setEditForm] = useState({ rating: 0, comment: "" });
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [myBooking, setMyBooking] = useState(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     fetchPackage();
     fetchReviews();
     // eslint-disable-next-line
   }, [id]);
+
+  // Fetch user's booking for this package
+  useEffect(() => {
+    if (!userData || !isLoggedIn) return;
+    const fetchMyBooking = async () => {
+      try {
+        const res = await axios.get(`${backendURL}/api/bookings/my`, {
+          withCredentials: true,
+        });
+        const found = (res.data.bookings || []).find(
+          (b) => b.package === id || b.package?._id === id
+        );
+        setMyBooking(found || null);
+      } catch {
+        setMyBooking(null);
+      }
+    };
+    fetchMyBooking();
+  }, [userData, isLoggedIn, id, backendURL]);
 
   const fetchPackage = async () => {
     setLoading(true);
@@ -278,6 +300,14 @@ const PackageDetails = () => {
           >
             <CalendarCheck className="w-5 h-5 mr-2 inline" /> Book Now
           </button>
+          {myBooking && (
+            <button
+              onClick={() => setChatOpen(true)}
+              className="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow transition"
+            >
+              Chat with Planner
+            </button>
+          )}
         </div>
         <div className="flex-1 flex flex-col gap-4">
           <h2 className="text-lg font-bold text-blue-700 mb-2">Description</h2>
@@ -542,6 +572,10 @@ const PackageDetails = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {chatOpen && myBooking && (
+        <ChatWindow booking={myBooking} onClose={() => setChatOpen(false)} />
       )}
     </div>
   );

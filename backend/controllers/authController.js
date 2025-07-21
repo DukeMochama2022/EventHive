@@ -45,6 +45,7 @@ const signup = async (req, res) => {
         username: user.username,
         email: user.email,
       },
+      token, // <-- add token here
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
@@ -87,7 +88,7 @@ const login = async (req, res) => {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    res.json({ success: true, message: "Login successful!" });
+    res.json({ success: true, message: "Login successful!", token }); // <-- add token here
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
   }

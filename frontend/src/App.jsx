@@ -28,6 +28,8 @@ import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 import PackageDetails from "./pages/PackageDetails";
 import Analytics from "./pages/Analytics";
+import { SocketProvider } from "./context/SocketContext";
+import NotificationListener from "./components/NotificationListener";
 
 function AppContent() {
   const location = useLocation();
@@ -119,7 +121,10 @@ function AppContent() {
 const App = () => {
   return (
     <Router>
-      <AppContent />
+      <SocketProvider>
+        <NotificationListener />
+        <AppContent />
+      </SocketProvider>
     </Router>
   );
 };

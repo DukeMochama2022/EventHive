@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Loader2, CalendarCheck2, AlertCircle, Package } from "lucide-react";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import { showError } from "../utils/toast";
+import ChatWindow from "../components/ChatWindow";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -18,6 +19,7 @@ const BookingsList = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [chatBooking, setChatBooking] = useState(null);
 
   useEffect(() => {
     fetchBookings();
@@ -131,18 +133,32 @@ const BookingsList = () => {
                   </div>
                 )}
               </div>
-              {/* Optionally, add a cancel button for pending/accepted bookings */}
-              {booking.status === "pending" || booking.status === "accepted" ? (
+              <div className="flex flex-col gap-2 mt-4 md:mt-0 md:ml-6">
+                {booking.status === "pending" ||
+                booking.status === "accepted" ? (
+                  <button
+                    onClick={() => handleCancel(booking._id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition"
+                  >
+                    Cancel
+                  </button>
+                ) : null}
                 <button
-                  onClick={() => handleCancel(booking._id)}
-                  className="mt-4 md:mt-0 md:ml-6 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition"
+                  onClick={() => setChatBooking(booking)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition"
                 >
-                  Cancel
+                  Chat
                 </button>
-              ) : null}
+              </div>
             </div>
           ))}
         </div>
+      )}
+      {chatBooking && (
+        <ChatWindow
+          booking={chatBooking}
+          onClose={() => setChatBooking(null)}
+        />
       )}
     </div>
   );
