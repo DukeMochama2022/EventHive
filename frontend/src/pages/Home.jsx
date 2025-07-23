@@ -16,6 +16,10 @@ import {
   Smartphone,
   CalendarClock,
   Globe,
+  CheckCircle,
+  UserPlus,
+  Search,
+  CalendarCheck2,
 } from "lucide-react";
 import eventHero from "../assets/event1.jpg";
 import eventCta from "../assets/event2.jpg";
@@ -31,11 +35,43 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
+// Helper for animated counter with float/fallback
+function useAnimatedCount(target, duration = 1500) {
+  const [count, setCount] = React.useState(0);
+  React.useEffect(() => {
+    let start = 0;
+    const end = parseInt(target);
+    if (start === end) return setCount(end);
+    let incrementTime = Math.max(10, Math.floor(duration / end));
+    let current = start;
+    const timer = setInterval(() => {
+      current += Math.ceil(end / (duration / incrementTime));
+      if (current >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(current);
+      }
+    }, incrementTime);
+    return () => clearInterval(timer);
+  }, [target, duration]);
+  return count;
+}
+
+function AnimatedCounter({ value, duration = 1500, className = "" }) {
+  const count = useAnimatedCount(value, duration);
+  return <span className={className}>{count.toLocaleString()}</span>;
+}
+
 const Home = () => {
   const [previewPackages, setPreviewPackages] = React.useState([]);
   const [loadingPreview, setLoadingPreview] = React.useState(true);
   const { backendURL } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate("/login");
+  };
 
   React.useEffect(() => {
     const fetchPreview = async () => {
@@ -56,35 +92,43 @@ const Home = () => {
   return (
     <div className="max-w-5xl mx-auto py-12 px-4 space-y-20">
       {/* Hero Section */}
-      <section className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-16 text-center md:text-left">
-        <div className="flex-1 space-y-6">
-          <h1 className="text-4xl bg-gradient-to-r from-indigo-500 to-purple-700 md:text-5xl font-extrabold text-transparent bg-clip-text">
-            Welcome to EventHive
+      <section className="relative flex flex-col md:flex-row items-center gap-8 md:gap-16 py-8 px-2 rounded-2xl shadow-lg bg-gradient-to-br from-blue-50 via-purple-50 to-white mb-12">
+        {/* Image: always visible, on top for mobile, left for desktop */}
+        <div className="flex-1 flex justify-center md:justify-end mb-6 md:mb-0 order-1 md:order-none">
+          <img
+            src={eventHero}
+            alt="Event"
+            className="rounded-2xl shadow-xl w-full max-w-xs sm:max-w-sm md:max-w-md object-cover h-56 sm:h-64 md:h-80 border-4 border-white"
+          />
+        </div>
+        {/* Text content */}
+        <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left space-y-5">
+          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-indigo-500 to-purple-700 text-transparent bg-clip-text drop-shadow mb-2">
+            Welcome to <span className="text-blue-700">EventHive</span>
           </h1>
-          <p className="text-xl text-gray-700 font-medium">
+          <p className="text-lg md:text-xl text-gray-700 font-medium">
             Your Smart Companion for Effortless Event Planning
           </p>
-          <p className="text-gray-600 max-w-2xl mx-auto md:mx-0">
+          <p className="text-gray-600 max-w-xl mx-auto md:mx-0">
             Plan weddings, birthdays, conferences, and more — all in one
             platform.
             <br />
             Trusted planners, clear pricing, smooth communication.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mt-6">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition">
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center md:justify-start mt-4">
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition w-full sm:w-auto"
+              onClick={handleGetStarted}
+            >
               Get Started
             </button>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition">
-              Explore Planners
+            <button
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition w-full sm:w-auto"
+              onClick={() => navigate("/packages")}
+            >
+              Explore Packages
             </button>
           </div>
-        </div>
-        <div className="flex-1 flex justify-center md:justify-end mb-8 md:mb-0">
-          <img
-            src={eventHero}
-            alt="Event"
-            className="rounded-2xl shadow-lg w-full max-w-md object-cover h-64 md:h-80"
-          />
         </div>
       </section>
 
@@ -110,10 +154,235 @@ const Home = () => {
         </div>
       </section>
 
+      {/* How It Works / Feature Highlights */}
+      <section className="my-16 max-w-5xl mx-auto">
+        <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
+          How It Works
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 text-center">
+          <div className="flex flex-col items-center">
+            <UserPlus className="w-10 h-10 text-blue-600 mb-2" />
+            <span className="font-semibold text-blue-700">Sign Up</span>
+            <span className="text-xs text-gray-500 mt-1">
+              Create your free account
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <Search className="w-10 h-10 text-purple-600 mb-2" />
+            <span className="font-semibold text-purple-700">
+              Browse Packages
+            </span>
+            <span className="text-xs text-gray-500 mt-1">
+              Find the perfect event package
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <CalendarCheck2 className="w-10 h-10 text-green-600 mb-2" />
+            <span className="font-semibold text-green-700">Book</span>
+            <span className="text-xs text-gray-500 mt-1">
+              Reserve your date and planner
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <MessageCircle className="w-10 h-10 text-pink-600 mb-2" />
+            <span className="font-semibold text-pink-700">Chat</span>
+            <span className="text-xs text-gray-500 mt-1">
+              Communicate and share details
+            </span>
+          </div>
+          <div className="flex flex-col items-center">
+            <Star className="w-10 h-10 text-yellow-500 mb-2" />
+            <span className="font-semibold text-yellow-600">Review</span>
+            <span className="text-xs text-gray-500 mt-1">
+              Rate your experience
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Animated Stats/Counters */}
+      <section className="my-16">
+        <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
+          Our Impact
+        </h2>
+        <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+          EventHive is trusted by thousands of clients and planners across the
+          region. Here’s a snapshot of our growing community and the impact
+          we’ve made together:
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
+          <div className="flex flex-col items-center">
+            <span className="text-4xl font-extrabold text-blue-700 mb-2">
+              <AnimatedCounter value={1000} />+
+            </span>
+            <span className="text-gray-700 font-semibold">Events Booked</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-4xl font-extrabold text-purple-700 mb-2">
+              <AnimatedCounter value={500} />+
+            </span>
+            <span className="text-gray-700 font-semibold">Planners</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-4xl font-extrabold text-green-700 mb-2">
+              <AnimatedCounter value={2000} />+
+            </span>
+            <span className="text-gray-700 font-semibold">Clients</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-4xl font-extrabold text-yellow-600 mb-2">
+              <AnimatedCounter value={350} />+
+            </span>
+            <span className="text-gray-700 font-semibold">Reviews</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Subscription Plans */}
+      <section className="my-16">
+        <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
+          Subscription Plans
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+          {/* Free Plan */}
+          <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 border-gray-300 order-0">
+            <span className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gray-500 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
+              Starter
+            </span>
+            <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Free</h3>
+            <div className="text-3xl font-bold text-gray-700 mb-4">$0/mo</div>
+            <ul className="text-gray-900 text-sm mb-6 space-y-2">
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-gray-500" /> Up to 1
+                event booking/month
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-gray-500" />{" "}
+                Community support
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-gray-500" /> Basic
+                listing for planners
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-gray-500" /> Limited
+                messaging
+              </li>
+            </ul>
+            <button className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
+              Choose Free
+            </button>
+          </div>
+          {/* Basic Plan */}
+          <div className="bg-gradient-to-br from-blue-100 to-blue-300 rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 border-blue-400 order-1">
+            <h3 className="text-2xl font-extrabold text-blue-800 mb-2">
+              Basic
+            </h3>
+            <div className="text-3xl font-bold text-blue-700 mb-4">$10/mo</div>
+            <ul className="text-blue-900 text-sm mb-6 space-y-2">
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-blue-600" /> Up to 3
+                event bookings/month
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-blue-600" /> Email
+                support
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-blue-600" /> Basic
+                analytics
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-blue-600" />{" "}
+                Standard listing for planners
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-blue-600" /> Limited
+                messaging
+              </li>
+            </ul>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
+              Choose Basic
+            </button>
+          </div>
+          {/* Pro Plan (Most Popular) */}
+          <div className="relative bg-gradient-to-br from-purple-100 to-purple-300 rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 border-purple-400 order-2">
+            <span className="absolute -top-5 left-1/2 -translate-x-1/2 bg-purple-700 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
+              Most Popular
+            </span>
+            <h3 className="text-2xl font-extrabold text-purple-800 mb-2">
+              Pro
+            </h3>
+            <div className="text-3xl font-bold text-purple-700 mb-4">
+              $25/mo
+            </div>
+            <ul className="text-purple-900 text-sm mb-6 space-y-2">
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-purple-600" /> Up to
+                10 event bookings/month
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-purple-600" />{" "}
+                Standard customer support
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-purple-600" /> Basic
+                analytics dashboard
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-purple-600" />{" "}
+                Standard listing for planners
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-purple-600" />{" "}
+                Unlimited messaging
+              </li>
+            </ul>
+            <button className="bg-purple-700 hover:bg-purple-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
+              Choose Pro
+            </button>
+          </div>
+          {/* Enterprise Plan */}
+          <div className="bg-gradient-to-br from-indigo-100 to-indigo-300 rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 border-indigo-400 order-3">
+            <h3 className="text-2xl font-extrabold text-indigo-800 mb-2">
+              Enterprise
+            </h3>
+            <div className="text-3xl font-bold text-indigo-700 mb-4">
+              $50/mo
+            </div>
+            <ul className="text-indigo-900 text-sm mb-6 space-y-2">
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
+                Unlimited event bookings
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
+                Priority customer support
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
+                Advanced analytics dashboard
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
+                Featured listing for planners
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
+                Unlimited messaging
+              </li>
+            </ul>
+            <button className="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
+              Choose Enterprise
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Our Services */}
       <section>
         <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
-          Our Services
+          Features
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
@@ -324,38 +593,108 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="flex flex-col md:flex-row items-center gap-8 pt-8">
-        <div className="flex-1 text-center md:text-left space-y-4">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Ready to plan your next event stress-free?
-          </h2>
-          <p className="text-gray-700">
-            🎯 Find a planner you trust
-            <br />
-            🎯 Book and track everything online
-            <br />
-            🎯 Create magical moments, effortlessly
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mt-6">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition">
-              Sign Up as a Client
+      {/* FAQ Section */}
+      <section className="my-16 max-w-3xl mx-auto">
+        <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
+          Frequently Asked Questions
+        </h2>
+        <FAQ />
+      </section>
+
+      {/* Call-to-Action Banner */}
+      <section className="my-16">
+        <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-white">
+          <div className="flex-1 text-center md:text-left">
+            <h3 className="text-2xl font-bold mb-2">
+              Ready to plan your next event?
+            </h3>
+            <p className="text-white/90 mb-4">
+              Sign up now to get started, or contact our support team for a
+              personalized demo or help.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center md:justify-end">
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-white text-blue-700 font-semibold px-6 py-3 rounded-lg shadow hover:bg-blue-50 transition w-full sm:w-auto"
+            >
+              Sign Up Free
             </button>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition">
-              Join as a Planner
+
+            <button
+              onClick={() => navigate("/contact")}
+              className="bg-white text-purple-700 font-semibold px-6 py-3 rounded-lg shadow hover:bg-purple-50 transition w-full sm:w-auto text-center"
+            >
+              Contact Support
             </button>
           </div>
-        </div>
-        <div className="flex-1 flex justify-center md:justify-end mt-8 md:mt-0">
-          <img
-            src={eventCta}
-            alt="Event Call to Action"
-            className="rounded-2xl shadow-lg w-full max-w-md object-cover h-64 md:h-80"
-          />
         </div>
       </section>
     </div>
   );
 };
+
+// FAQ component
+function FAQ() {
+  const faqs = [
+    {
+      q: "What is EventHive?",
+      a: "EventHive is an all-in-one event management platform that connects clients with trusted planners, streamlines bookings, and enables seamless communication.",
+    },
+    {
+      q: "How do I subscribe to a plan?",
+      a: "Simply click on the 'Choose' button under your preferred plan and follow the sign-up and payment instructions.",
+    },
+    {
+      q: "Can I upgrade or downgrade my plan later?",
+      a: "Yes! You can change your subscription at any time from your dashboard.",
+    },
+    {
+      q: "How do i book an event?",
+      a: "You can book an event by clicking on the 'Book' button on the event page and following the instructions.",
+    },
+    {
+      q: "Is there a free plan?",
+      a: "Yes, we offer a Free Starter plan with limited features so you can try out EventHive before upgrading.",
+    },
+    {
+      q: "How do I contact support?",
+      a: "You can reach us via the contact details in the footer or through your dashboard's support section.",
+    },
+  ];
+  const [open, setOpen] = React.useState(null);
+  return (
+    <div className="space-y-4">
+      {faqs.map((faq, idx) => (
+        <div
+          key={idx}
+          className="border border-gray-200 rounded-lg overflow-hidden"
+        >
+          <button
+            className="w-full flex justify-between items-center px-4 py-3 text-left font-semibold text-blue-700 focus:outline-none focus:bg-blue-50 hover:bg-blue-50 transition"
+            onClick={() => setOpen(open === idx ? null : idx)}
+            aria-expanded={open === idx}
+          >
+            {faq.q}
+            <span
+              className={`ml-2 transition-transform ${
+                open === idx ? "rotate-180" : ""
+              }`}
+            >
+              ▼
+            </span>
+          </button>
+          <div
+            className={`px-4 pb-3 text-gray-700 text-sm transition-all duration-300 ${
+              open === idx ? "block" : "hidden"
+            }`}
+          >
+            {faq.a}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default Home;

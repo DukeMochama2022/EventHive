@@ -14,6 +14,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 const Message = require("./models/Message");
+const contactMessageRoutes = require("./routes/contactMessageRoutes");
 
 const app = express();
 app.use(express.json());
@@ -157,6 +158,7 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/messages", contactMessageRoutes);
 app.get("/", (req, res) => {
   res.send("EventHive Api running");
 });

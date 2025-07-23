@@ -20,22 +20,31 @@ function Footer() {
 
   const linkSections = [
     {
-      title: "Quick Links",
-      links: ["Home", "Best Sellers", "Offers & Deals", "Contact Us", "FAQs"],
+      title: "Navigation",
+      links: [
+        { name: "Home", href: "/" },
+        { name: "Packages", href: "/packages" },
+        { name: "Contact", href: "/contact" },
+        { name: "Login", href: "/login" },
+        { name: "Pricing", href: "/pricing" },
+      ],
     },
     {
-      title: "Need Help?",
+      title: "Contact",
       links: [
-        "Delivery Information",
-        "Return & Refund Policy",
-        "Payment Methods",
-        "Track your Order",
-        "Contact Us",
+        { name: "support@eventhive.com", href: "mailto:support@eventhive.com" },
+        { name: "+254 112 197 987", href: "tel:+254112197987" },
+        { name: "+254 290 000 000", href: "tel:+254290000000" },
+        { name: "Nairobi, Kenya", href: "https://maps.app.goo.gl/1234567890" },
       ],
     },
     {
       title: "Follow Us",
-      links: ["Instagram", "Twitter", "Facebook", "YouTube"],
+      links: [
+        { name: "Instagram", href: "https://instagram.com" },
+        { name: "Twitter", href: "https://twitter.com" },
+        { name: "Facebook", href: "https://facebook.com" },
+      ],
     },
   ];
 
@@ -63,8 +72,19 @@ function Footer() {
               <ul className="text-sm space-y-1">
                 {section.links.map((link, i) => (
                   <li key={i}>
-                    <a href="#" className="hover:underline transition">
-                      {link}
+                    <a
+                      href={link.href}
+                      className="hover:underline transition"
+                      target={
+                        link.href.startsWith("http") ? "_blank" : undefined
+                      }
+                      rel={
+                        link.href.startsWith("http")
+                          ? "noopener noreferrer"
+                          : undefined
+                      }
+                    >
+                      {link.name}
                     </a>
                   </li>
                 ))}

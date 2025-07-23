@@ -24,7 +24,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+      e.preventDefault();
 
     if (isLoading) return;
 

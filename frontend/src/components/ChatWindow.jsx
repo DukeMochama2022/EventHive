@@ -216,3 +216,4 @@ const ChatWindow = ({ booking, onClose }) => {
 };
 
 export default ChatWindow;
+ 

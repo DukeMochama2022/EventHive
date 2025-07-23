@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
-  const { isLoggedIn, user } = useContext(AuthContext);
+  const { isLoggedIn, userData } = useContext(AuthContext);
 
   // If not logged in, redirect to login
   if (!isLoggedIn) {
@@ -11,11 +11,11 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
   }
 
   // If role is required and user doesn't have it, redirect to unauthorized
-  if (requiredRole && user?.role !== requiredRole) {
+  if (requiredRole && userData?.role !== requiredRole) {
     return (
       <Navigate
         to={`/unauthorized?required=${requiredRole}&current=${
-          user?.role || "none"
+          userData?.role || "none"
         }`}
         replace
       />

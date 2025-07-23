@@ -48,6 +48,12 @@ const Navbar = () => {
           >
             Packages
           </Link>
+          <Link
+            to="/pricing"
+            className="nav-link px-3 py-2 rounded-md text-sm font-medium text-purple-700 hover:bg-purple-100 transition"
+          >
+            Pricing
+          </Link>
           {isLoggedIn && userData && (
             <Link
               to="/dashboard"
@@ -115,6 +121,13 @@ const Navbar = () => {
             onClick={() => setMenuOpen(false)}
           >
             Packages
+          </Link>
+          <Link
+            to="/pricing"
+            className="block text-gray-700 hover:text-purple-600 font-medium transition"
+            onClick={() => setMenuOpen(false)}
+          >
+            Pricing
           </Link>
           {isLoggedIn && userData && (
             <Link

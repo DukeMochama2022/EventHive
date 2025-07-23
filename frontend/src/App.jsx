@@ -11,6 +11,7 @@ import { ToastContainer } from "react-toastify";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import AdminContactMessages from "./components/AdminContactMessages";
 import Footer from "./pages/Footer";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -30,6 +31,9 @@ import PackageDetails from "./pages/PackageDetails";
 import Analytics from "./pages/Analytics";
 import { SocketProvider } from "./context/SocketContext";
 import NotificationListener from "./components/NotificationListener";
+import PricingPlans from "./pages/PricingPlans";
+import Contact from "./pages/Contact";
+import { lazy } from "react";
 
 function AppContent() {
   const location = useLocation();
@@ -51,6 +55,8 @@ function AppContent() {
           <Route path="/packages/:id" element={<PackageDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/pricing" element={<PricingPlans />} />
+          <Route path="/contact" element={<Contact />} />
           <Route element={<DashboardLayout />}>
             {/* Role-based dashboard redirect */}
             <Route
@@ -88,6 +94,14 @@ function AppContent() {
                   element={<PlannerBookingsList />}
                 />
                 <Route path="/dashboard/analytics" element={<Analytics />} />
+                <Route
+                  path="/dashboard/messages"
+                  element={
+                    <ProtectedRoute requiredRole="admin">
+                      <AdminContactMessages />
+                    </ProtectedRoute>
+                  }
+                />
               </>
             )}
           </Route>
