@@ -5,6 +5,7 @@ import {
   Route,
   useLocation,
   Navigate,
+  Outlet,
 } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -34,6 +35,7 @@ import NotificationListener from "./components/NotificationListener";
 import PricingPlans from "./pages/PricingPlans";
 import Contact from "./pages/Contact";
 import { lazy } from "react";
+import AdminUserManager from "./components/AdminUserManager";
 
 function AppContent() {
   const location = useLocation();
@@ -57,48 +59,52 @@ function AppContent() {
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/pricing" element={<PricingPlans />} />
           <Route path="/contact" element={<Contact />} />
-          <Route element={<DashboardLayout />}>
-            {/* Role-based dashboard redirect */}
+          {/* Dashboard routes with nested children */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            {/* Default dashboard redirect based on role */}
             <Route
-              path="/dashboard"
+              index
               element={
                 userData?.role === "client" ? (
-                  <Navigate to="/dashboard/bookings" replace />
+                  <Navigate to="bookings" replace />
                 ) : (
-                  <Navigate to="/dashboard/packages" replace />
+                  <Navigate to="packages" replace />
                 )
               }
             />
             {/* Client route */}
             {userData?.role === "client" && (
-              <Route path="/dashboard/bookings" element={<BookingsList />} />
+              <Route path="bookings" element={<BookingsList />} />
             )}
             {/* Planner/Admin routes */}
             {(userData?.role === "planner" || userData?.role === "admin") && (
               <>
-                <Route path="/dashboard/packages" element={<PackageList />} />
+                <Route path="packages" element={<PackageList />} />
+                <Route path="packages/create" element={<PackageForm />} />
+                <Route path="packages/edit/:id" element={<PackageEditForm />} />
+                <Route path="categories" element={<CategoryManager />} />
+                <Route path="bookings" element={<PlannerBookingsList />} />
+                <Route path="analytics" element={<Analytics />} />
                 <Route
-                  path="/dashboard/packages/create"
-                  element={<PackageForm />}
-                />
-                <Route
-                  path="/dashboard/packages/edit/:id"
-                  element={<PackageEditForm />}
-                />
-                <Route
-                  path="/dashboard/categories"
-                  element={<CategoryManager />}
-                />
-                <Route
-                  path="/dashboard/bookings"
-                  element={<PlannerBookingsList />}
-                />
-                <Route path="/dashboard/analytics" element={<Analytics />} />
-                <Route
-                  path="/dashboard/messages"
+                  path="messages"
                   element={
                     <ProtectedRoute requiredRole="admin">
                       <AdminContactMessages />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="users"
+                  element={
+                    <ProtectedRoute requiredRole="admin">
+                      <AdminUserManager />
                     </ProtectedRoute>
                   }
                 />

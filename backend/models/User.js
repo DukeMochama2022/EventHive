@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    plan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plan",
+    },
+    planExpiresAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

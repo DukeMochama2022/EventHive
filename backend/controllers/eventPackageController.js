@@ -1,4 +1,6 @@
 const EventPackage = require("../models/EventPackage");
+const User = require("../models/User");
+const Plan = require("../models/Plan");
 
 // Create a new event package
 const createEventPackage = async (req, res) => {
@@ -6,6 +8,19 @@ const createEventPackage = async (req, res) => {
     const { title, description, price, category, image, location } = req.body;
     // The planner is the logged-in user (assume req.user.id is set by auth middleware)
     const planner = req.user.id;
+
+    // Enforce plan package limit
+    const user = await User.findById(planner).populate("plan");
+    const plan = user.plan;
+    const maxPackages = plan?.features?.maxPackages ?? 1;
+    const packageCount = await EventPackage.countDocuments({ planner });
+    if (packageCount >= maxPackages) {
+      return res.status(403).json({
+        success: false,
+        message: `You have reached your package limit (${maxPackages}) for your current plan. Please upgrade your plan to create more packages.`,
+        upgradePrompt: true,
+      });
+    }
 
     const imageUrl = req.file?.path;
 

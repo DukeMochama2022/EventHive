@@ -1,6 +1,7 @@
 const Booking = require("../models/Booking");
 const EventPackage = require("../models/EventPackage");
 const User = require("../models/User");
+const Plan = require("../models/Plan");
 
 // Create a new booking
 const createBooking = async (req, res) => {
@@ -13,6 +14,34 @@ const createBooking = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields." });
+    }
+
+    // Enforce plan booking limit
+    const user = await User.findById(client).populate("plan");
+    const plan = user.plan;
+    const maxBookings = plan?.features?.maxBookingsPerMonth ?? 1;
+    // Count bookings for this client in the current month
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+    const monthlyCount = await Booking.countDocuments({
+      client,
+      date: { $gte: startOfMonth, $lte: endOfMonth },
+    });
+    if (monthlyCount >= maxBookings) {
+      return res.status(403).json({
+        success: false,
+        message: `You have reached your monthly booking limit (${maxBookings}) for your current plan. Please upgrade your plan to book more events.`,
+        upgradePrompt: true,
+      });
     }
 
     // Normalize date to start of day UTC

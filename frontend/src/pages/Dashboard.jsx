@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import useUnreadCount from "../hooks/useUnreadCount";
 import axios from "axios";
+import AdminUserManager from "../components/AdminUserManager";
 
 const Sidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
   const { backendURL, userData } = useContext(AuthContext);
@@ -115,6 +116,20 @@ const Sidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
               >
                 <LayoutDashboard className="w-5 h-5" />
                 Messages
+              </NavLink>
+              <NavLink
+                to="/dashboard/users"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors duration-200 ${
+                    isActive
+                      ? "bg-white/20 text-white shadow"
+                      : "text-blue-100 hover:bg-white/10 hover:text-white"
+                  }`
+                }
+                onClick={mobile ? onClose : undefined}
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                Manage Users
               </NavLink>
             </>
           )}

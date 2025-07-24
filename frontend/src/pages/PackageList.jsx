@@ -31,6 +31,8 @@ const PackageList = () => {
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const packagesPerPage = 3;
 
   useEffect(() => {
     fetchPackages();
@@ -133,9 +135,21 @@ const PackageList = () => {
     );
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(packages.length / packagesPerPage);
+  const paginatedPackages = packages.slice(
+    (currentPage - 1) * packagesPerPage,
+    currentPage * packagesPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-6xl mx-auto pb-32">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <Package className="w-6 h-6 text-blue-600" />
           <h2 className="text-2xl font-bold text-blue-700">
@@ -144,7 +158,7 @@ const PackageList = () => {
         </div>
         <button
           onClick={() => navigate("/dashboard/packages/create")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 w-full md:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           Create Package
@@ -171,69 +185,116 @@ const PackageList = () => {
           </button>
         </div>
       ) : (
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {packages.map((pkg) => (
-            <div
-              key={pkg._id}
-              className="bg-white rounded-2xl shadow-lg p-5 flex flex-col h-full border border-blue-100 hover:shadow-xl transition group"
-            >
-              <div className="w-full h-40 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                {pkg.image ? (
-                  <img
-                    src={pkg.image}
-                    alt={pkg.title}
-                    className="object-cover w-full h-full rounded-xl group-hover:scale-105 transition"
-                  />
-                ) : (
-                  <ImageIcon className="w-12 h-12 text-blue-300" />
-                )}
-              </div>
-              <h3 className="text-lg font-bold text-blue-800 mb-1 truncate">
-                {pkg.title}
-              </h3>
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                <Tag className="w-4 h-4 text-purple-500" />
-                <span>{pkg.category?.name || "-"}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                <MapPin className="w-4 h-4 text-blue-500" />
-                <span>{pkg.location}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <DollarSign className="w-4 h-4 text-green-500" />
-                <span className="font-semibold text-green-700">
-                  Ksh {pkg.price}
-                </span>
-              </div>
-              <div className="mt-auto flex gap-2">
-                <button
-                  onClick={() =>
-                    navigate(`/dashboard/packages/edit/${pkg._id}`)
-                  }
-                  disabled={deletingId === pkg._id}
-                  className="flex-1 flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Pencil className="w-4 h-4" /> Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(pkg._id)}
-                  disabled={deletingId === pkg._id}
-                  className="flex-1 flex items-center justify-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {deletingId === pkg._id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Deleting...
-                    </>
+        <>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {paginatedPackages.map((pkg) => (
+              <div
+                key={pkg._id}
+                className="bg-white rounded-2xl shadow-lg p-5 flex flex-col h-full border border-blue-100 hover:shadow-xl transition group"
+              >
+                <div className="w-full h-40 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                  {pkg.image ? (
+                    <img
+                      src={pkg.image}
+                      alt={pkg.title}
+                      className="object-cover w-full h-full rounded-xl group-hover:scale-105 transition"
+                    />
                   ) : (
-                    <>
-                      <Trash2 className="w-4 h-4" /> Delete
-                    </>
+                    <ImageIcon className="w-12 h-12 text-blue-300" />
                   )}
+                </div>
+                <h3 className="text-lg font-bold text-blue-800 mb-1 truncate">
+                  {pkg.title}
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <Tag className="w-4 h-4 text-purple-500" />
+                  <span>{pkg.category?.name || "-"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <MapPin className="w-4 h-4 text-blue-500" />
+                  <span>{pkg.location}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                  <DollarSign className="w-4 h-4 text-green-500" />
+                  <span className="font-semibold text-green-700">
+                    Ksh {pkg.price}
+                  </span>
+                </div>
+                <div className="mt-auto flex gap-2">
+                  <button
+                    onClick={() =>
+                      navigate(`/dashboard/packages/edit/${pkg._id}`)
+                    }
+                    disabled={deletingId === pkg._id}
+                    className="flex-1 flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Pencil className="w-4 h-4" /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(pkg._id)}
+                    disabled={deletingId === pkg._id}
+                    className="flex-1 flex items-center justify-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {deletingId === pkg._id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4" /> Delete
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col items-center mt-8 gap-2">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-lg font-semibold border transition ${
+                    currentPage === 1
+                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
+                  }`}
+                >
+                  Prev
                 </button>
+                {Array.from({ length: totalPages }).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handlePageChange(idx + 1)}
+                    className={`px-4 py-2 rounded-lg font-semibold border transition ${
+                      currentPage === idx + 1
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg font-semibold border transition ${
+                    currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+              <div className="text-sm text-gray-600 mt-1">
+                Page {currentPage} of {totalPages}
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

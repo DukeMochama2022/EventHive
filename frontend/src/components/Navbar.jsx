@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { AuthContext } from "../context/AuthContext";
 import { Sparkles, User, Menu, X } from "lucide-react";
 import axios from "axios";
@@ -36,31 +37,52 @@ const Navbar = () => {
         </Link>
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-6">
-          <Link
+          <NavLink
             to="/"
-            className="text-gray-700 hover:text-blue-600 font-medium transition"
+            className={({ isActive }) =>
+              `text-gray-700 hover:text-blue-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                isActive ? "bg-blue-100 text-blue-800 font-bold" : ""
+              }`
+            }
+            role="menuitem"
           >
             Home
-          </Link>
-          <Link
+          </NavLink>
+          <NavLink
             to="/packages"
-            className="nav-link px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-100 transition"
+            className={({ isActive }) =>
+              `nav-link px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-100 transition ${
+                isActive ? "bg-blue-100 text-blue-800 font-bold" : ""
+              }`
+            }
+            role="menuitem"
           >
             Packages
-          </Link>
-          <Link
+          </NavLink>
+          <NavLink
             to="/pricing"
-            className="nav-link px-3 py-2 rounded-md text-sm font-medium text-purple-700 hover:bg-purple-100 transition"
+            className={({ isActive }) =>
+              `nav-link px-3 py-2 rounded-md text-sm font-medium text-purple-700 hover:bg-purple-100 transition ${
+                isActive ? "bg-purple-100 text-purple-800 font-bold" : ""
+              }
+            `
+            }
+            role="menuitem"
           >
             Pricing
-          </Link>
+          </NavLink>
           {isLoggedIn && userData && (
-            <Link
+            <NavLink
               to="/dashboard"
-              className="text-gray-700 hover:text-purple-600 font-medium transition"
+              className={({ isActive }) =>
+                `text-gray-700 hover:text-purple-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                  isActive ? "bg-purple-100 text-purple-800 font-bold" : ""
+                }`
+              }
+              role="menuitem"
             >
               Dashboard
-            </Link>
+            </NavLink>
           )}
         </div>
         {/* Desktop User Info/Actions */}
@@ -84,12 +106,17 @@ const Navbar = () => {
               </button>
             </>
           ) : (
-            <Link
+            <NavLink
               to="/login"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-full transition"
+              className={({ isActive }) =>
+                `bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-full transition ${
+                  isActive ? "ring-2 ring-blue-400" : ""
+                }`
+              }
+              role="menuitem"
             >
               Login
-            </Link>
+            </NavLink>
           )}
         </div>
         {/* Mobile Hamburger Icon */}
@@ -106,70 +133,105 @@ const Navbar = () => {
         </button>
       </div>
       {/* Mobile Dropdown Menu */}
-      {menuOpen && (
-        <div className="md:hidden bg-white shadow-lg border-t border-gray-100 px-4 py-4 space-y-4 animate-fade-in-down">
-          <Link
-            to="/"
-            className="block text-gray-700 hover:text-blue-600 font-medium transition"
-            onClick={() => setMenuOpen(false)}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="mobile-menu"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.25 }}
+            className="md:hidden bg-white shadow-lg border-t border-gray-100 px-4 py-4 space-y-4"
+            role="menu"
           >
-            Home
-          </Link>
-          <Link
-            to="/packages"
-            className="block text-gray-700 hover:text-blue-600 font-medium transition"
-            onClick={() => setMenuOpen(false)}
-          >
-            Packages
-          </Link>
-          <Link
-            to="/pricing"
-            className="block text-gray-700 hover:text-purple-600 font-medium transition"
-            onClick={() => setMenuOpen(false)}
-          >
-            Pricing
-          </Link>
-          {isLoggedIn && userData && (
-            <Link
-              to="/dashboard"
-              className="block text-gray-700 hover:text-purple-600 font-medium transition"
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `block text-gray-700 hover:text-blue-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                  isActive ? "bg-blue-100 text-blue-800 font-bold" : ""
+                }`
+              }
               onClick={() => setMenuOpen(false)}
+              role="menuitem"
             >
-              Dashboard
-            </Link>
-          )}
-          {isLoggedIn && userData ? (
-            <>
-              <div className="flex items-center gap-3 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 mt-2">
-                <User className="w-5 h-5 text-blue-600" />
-                <span className="font-semibold text-gray-800">
-                  {userData.username}
-                </span>
-                <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 font-semibold uppercase">
-                  {userData.role}
-                </span>
-              </div>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  logout();
-                }}
-                className="w-full mt-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:from-indigo-600 hover:to-purple-700 transition shadow"
+              Home
+            </NavLink>
+            <NavLink
+              to="/packages"
+              className={({ isActive }) =>
+                `block text-gray-700 hover:text-blue-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                  isActive ? "bg-blue-100 text-blue-800 font-bold" : ""
+                }`
+              }
+              onClick={() => setMenuOpen(false)}
+              role="menuitem"
+            >
+              Packages
+            </NavLink>
+            <NavLink
+              to="/pricing"
+              className={({ isActive }) =>
+                `block text-gray-700 hover:text-purple-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                  isActive ? "bg-purple-100 text-purple-800 font-bold" : ""
+                }`
+              }
+              onClick={() => setMenuOpen(false)}
+              role="menuitem"
+            >
+              Pricing
+            </NavLink>
+            {isLoggedIn && userData && (
+              <NavLink
+                to="/dashboard"
+                className={({ isActive }) =>
+                  `block text-gray-700 hover:text-purple-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                    isActive ? "bg-purple-100 text-purple-800 font-bold" : ""
+                  }`
+                }
+                onClick={() => setMenuOpen(false)}
+                role="menuitem"
               >
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link
-              to="/login"
-              className="block mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-full text-center transition"
-              onClick={() => setMenuOpen(false)}
-            >
-              Login
-            </Link>
-          )}
-        </div>
-      )}
+                Dashboard
+              </NavLink>
+            )}
+            {isLoggedIn && userData ? (
+              <>
+                <div className="flex items-center gap-3 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 mt-2">
+                  <User className="w-5 h-5 text-blue-600" />
+                  <span className="font-semibold text-gray-800">
+                    {userData.username}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 font-semibold uppercase">
+                    {userData.role}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    logout();
+                  }}
+                  className="w-full mt-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:from-indigo-600 hover:to-purple-700 transition shadow"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  `block mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-full text-center transition ${
+                    isActive ? "ring-2 ring-blue-400" : ""
+                  }`
+                }
+                onClick={() => setMenuOpen(false)}
+                role="menuitem"
+              >
+                Login
+              </NavLink>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

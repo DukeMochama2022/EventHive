@@ -37,6 +37,10 @@ const PublicPackages = () => {
   const [bookingForm, setBookingForm] = useState({ date: "", message: "" });
   const [bookingLoading, setBookingLoading] = useState(false);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const packagesPerPage = 6;
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState("");
 
   useEffect(() => {
     fetchPackages();
@@ -87,6 +91,18 @@ const PublicPackages = () => {
       matchesMaxPrice
     );
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredPackages.length / packagesPerPage);
+  const paginatedPackages = filteredPackages.slice(
+    (currentPage - 1) * packagesPerPage,
+    currentPage * packagesPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Booking logic
   const openBooking = (pkg) => {
@@ -144,6 +160,10 @@ const PublicPackages = () => {
         error?.message ||
         "Failed to book package";
       updateToast(loadingToast, "error", backendMsg);
+      if (error?.response?.data?.upgradePrompt) {
+        setUpgradeMessage(backendMsg);
+        setShowUpgradeModal(true);
+      }
     } finally {
       setBookingLoading(false);
     }
@@ -223,57 +243,104 @@ const PublicPackages = () => {
           No packages found matching your criteria.
         </div>
       ) : (
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredPackages.map((pkg) => (
-            <div
-              key={pkg._id}
-              className="bg-white rounded-2xl shadow-lg p-5 flex flex-col h-full border border-blue-100 hover:shadow-xl transition group"
-            >
-              <div className="w-full h-40 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                {pkg.image ? (
-                  <img
-                    src={pkg.image}
-                    alt={pkg.title}
-                    className="object-cover w-full h-full rounded-xl group-hover:scale-105 transition"
-                  />
-                ) : (
-                  <ImageIcon className="w-12 h-12 text-blue-300" />
-                )}
+        <>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {paginatedPackages.map((pkg) => (
+              <div
+                key={pkg._id}
+                className="bg-white rounded-2xl shadow-lg p-5 flex flex-col h-full border border-blue-100 hover:shadow-xl transition group"
+              >
+                <div className="w-full h-40 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                  {pkg.image ? (
+                    <img
+                      src={pkg.image}
+                      alt={pkg.title}
+                      className="object-cover w-full h-full rounded-xl group-hover:scale-105 transition"
+                    />
+                  ) : (
+                    <ImageIcon className="w-12 h-12 text-blue-300" />
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-blue-800 mb-1 truncate">
+                  {pkg.title}
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <Tag className="w-4 h-4 text-purple-500" />
+                  <span>{pkg.category?.name || "-"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <MapPin className="w-4 h-4 text-blue-500" />
+                  <span>{pkg.location}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                  <DollarSign className="w-4 h-4 text-green-500" />
+                  <span className="font-semibold text-green-700">
+                    Ksh {pkg.price}
+                  </span>
+                </div>
+                <div className="mt-auto flex gap-2">
+                  <button
+                    onClick={() => openBooking(pkg)}
+                    className="flex-1 flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold text-sm transition"
+                  >
+                    <CalendarCheck className="w-4 h-4" /> Book
+                  </button>
+                  <Link
+                    to={`/packages/${pkg._id}`}
+                    className="flex-1 flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-blue-700 px-3 py-2 rounded-lg font-semibold text-sm transition"
+                  >
+                    More Details
+                  </Link>
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-blue-800 mb-1 truncate">
-                {pkg.title}
-              </h3>
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                <Tag className="w-4 h-4 text-purple-500" />
-                <span>{pkg.category?.name || "-"}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                <MapPin className="w-4 h-4 text-blue-500" />
-                <span>{pkg.location}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <DollarSign className="w-4 h-4 text-green-500" />
-                <span className="font-semibold text-green-700">
-                  Ksh {pkg.price}
-                </span>
-              </div>
-              <div className="mt-auto flex gap-2">
+            ))}
+          </div>
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col items-center mt-8 gap-2">
+              <div className="flex gap-2">
                 <button
-                  onClick={() => openBooking(pkg)}
-                  className="flex-1 flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold text-sm transition"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-lg font-semibold border transition ${
+                    currentPage === 1
+                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
+                  }`}
                 >
-                  <CalendarCheck className="w-4 h-4" /> Book
+                  Prev
                 </button>
-                <Link
-                  to={`/packages/${pkg._id}`}
-                  className="flex-1 flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-blue-700 px-3 py-2 rounded-lg font-semibold text-sm transition"
+                {Array.from({ length: totalPages }).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handlePageChange(idx + 1)}
+                    className={`px-4 py-2 rounded-lg font-semibold border transition ${
+                      currentPage === idx + 1
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg font-semibold border transition ${
+                    currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
+                  }`}
                 >
-                  More Details
-                </Link>
+                  Next
+                </button>
+              </div>
+              <div className="text-sm text-gray-600 mt-1">
+                Page {currentPage} of {totalPages}
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* Booking Modal */}
@@ -333,6 +400,35 @@ const PublicPackages = () => {
                 )}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Upgrade Prompt Modal */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative text-center">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl"
+              onClick={() => setShowUpgradeModal(false)}
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-bold text-red-600 mb-4">
+              Booking Limit Reached
+            </h2>
+            <p className="text-gray-700 mb-6">
+              {upgradeMessage ||
+                "You have reached your plan's booking limit. Please upgrade your plan to book more events."}
+            </p>
+            <button
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold px-6 py-2 rounded-lg shadow hover:from-blue-700 hover:to-purple-700 transition"
+              onClick={() => {
+                setShowUpgradeModal(false);
+                navigate("/pricing");
+              }}
+            >
+              View Pricing Plans
+            </button>
           </div>
         </div>
       )}

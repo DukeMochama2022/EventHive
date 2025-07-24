@@ -108,8 +108,20 @@ const ChatWindow = ({ booking, onClose }) => {
   }, []);
 
   // Determine chat partner
-  const isClient = userData._id === booking.client._id;
-  const partner = isClient ? booking.planner : booking.client;
+  const clientId =
+    typeof booking.client === "string" ? booking.client : booking.client?._id;
+  const plannerId =
+    typeof booking.planner === "string"
+      ? booking.planner
+      : booking.planner?._id;
+  const isClient = userData._id === clientId;
+  const partner = isClient
+    ? typeof booking.planner === "object" && booking.planner
+      ? booking.planner
+      : null
+    : typeof booking.client === "object" && booking.client
+    ? booking.client
+    : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -134,7 +146,9 @@ const ChatWindow = ({ booking, onClose }) => {
             </span>
             <span className="text-xs text-gray-400">
               Package:{" "}
-              <span className="font-semibold">{booking.package?.title}</span>
+              <span className="font-semibold">
+                {booking.package?.title || "-"}
+              </span>
             </span>
           </div>
         </div>
@@ -216,4 +230,3 @@ const ChatWindow = ({ booking, onClose }) => {
 };
 
 export default ChatWindow;
- 

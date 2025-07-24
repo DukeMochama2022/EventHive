@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import eventHiveLogo from "../assets/Party Popper Logo for EventHive.png";
 
 function Footer() {
   const [showFooter, setShowFooter] = useState(false);
@@ -51,13 +52,16 @@ function Footer() {
   return (
     <div className="fixed left-0 bottom-0 w-full z-50 px-6 md:px-16 lg:px-24 xl:px-32 bg-white text-gray-800 shadow-inner">
       <div className="flex flex-col md:flex-row items-start justify-between gap-10 py-10 border-b border-gray-300 text-gray-700">
-        <div>
-          <img
-            className="w-34 md:w-32"
-            src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/dummyLogo/dummyLogoColored.svg"
-            alt="dummyLogoColored"
-          />
-          <p className="max-w-[410px] mt-6">
+        <div className="flex flex-col items-start">
+          <div className="flex items-center gap-3 mb-4">
+            <img
+              src={eventHiveLogo}
+              alt="EventHive Logo"
+              className="w-15 h-15 md:w-12 md:h-12 object-contain"
+            />
+            <span className="text-2xl font-bold text-blue-700">EventHive</span>
+          </div>
+          <p className="max-w-[410px] mt-2">
             EventHive is your gateway to discovering, booking, and managing the
             best events around you. Join our community and never miss out on
             memorable experiences!

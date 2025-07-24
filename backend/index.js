@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
+const seedPlans = require("./seedPlans");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
@@ -15,12 +16,12 @@ const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 const Message = require("./models/Message");
 const contactMessageRoutes = require("./routes/contactMessageRoutes");
+const planRoutes = require("./routes/planRoutes");
 
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(cookieParser());
-connectDB();
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -159,13 +160,18 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/messages", contactMessageRoutes);
+app.use("/api/plans", planRoutes);
 app.get("/", (req, res) => {
   res.send("EventHive Api running");
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+(async () => {
+  await connectDB();
+  await seedPlans();
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+})();
 
 module.exports = { io };

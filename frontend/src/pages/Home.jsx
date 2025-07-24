@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Users,
   Star,
@@ -34,6 +34,62 @@ import {
   CalendarCheck as CalendarIcon,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (i = 1) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.15, duration: 0.7, type: "spring" },
+  }),
+};
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: (i = 1) => ({
+    opacity: 1,
+    transition: { delay: i * 0.15, duration: 0.7 },
+  }),
+};
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.6 } },
+};
+
+const planColors = {
+  Free: {
+    bg: "from-gray-100 to-gray-200",
+    border: "border-gray-300",
+    text: "text-gray-800",
+    icon: "text-gray-500",
+    button: "bg-gray-400 hover:bg-gray-500",
+    badge: "bg-gray-500",
+  },
+  Basic: {
+    bg: "from-blue-100 to-blue-300",
+    border: "border-blue-400",
+    text: "text-blue-800",
+    icon: "text-blue-600",
+    button: "bg-blue-600 hover:bg-blue-700",
+    badge: "bg-blue-600",
+  },
+  Pro: {
+    bg: "from-purple-100 to-purple-300",
+    border: "border-purple-400",
+    text: "text-purple-800",
+    icon: "text-purple-600",
+    button: "bg-purple-700 hover:bg-purple-800",
+    badge: "bg-purple-700",
+  },
+  Enterprise: {
+    bg: "from-indigo-100 to-indigo-300",
+    border: "border-indigo-400",
+    text: "text-indigo-800",
+    icon: "text-indigo-600",
+    button: "bg-indigo-700 hover:bg-indigo-800",
+    badge: "bg-indigo-700",
+  },
+};
 
 // Helper for animated counter with float/fallback
 function useAnimatedCount(target, duration = 1500) {
@@ -66,7 +122,7 @@ function AnimatedCounter({ value, duration = 1500, className = "" }) {
 const Home = () => {
   const [previewPackages, setPreviewPackages] = React.useState([]);
   const [loadingPreview, setLoadingPreview] = React.useState(true);
-  const { backendURL } = useContext(AuthContext);
+  const { backendURL, userData } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
@@ -90,19 +146,40 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4 space-y-20">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={fadeIn}
+      className="max-w-5xl mx-auto py-12 px-4 space-y-20"
+    >
       {/* Hero Section */}
-      <section className="relative flex flex-col md:flex-row items-center gap-8 md:gap-16 py-8 px-2 rounded-2xl shadow-lg bg-gradient-to-br from-blue-50 via-purple-50 to-white mb-12">
-        {/* Image: always visible, on top for mobile, left for desktop */}
-        <div className="flex-1 flex justify-center md:justify-end mb-6 md:mb-0 order-1 md:order-none">
-          <img
+      <motion.section
+        variants={fadeInUp}
+        initial="hidden"
+        animate="visible"
+        className="relative flex flex-col md:flex-row items-center gap-8 md:gap-16 py-8 px-2 rounded-2xl shadow-lg bg-gradient-to-br from-blue-50 via-purple-50 to-white mb-12"
+      >
+        {/* Image */}
+        <motion.div
+          variants={fadeInUp}
+          custom={1}
+          className="flex-1 flex justify-center md:justify-end mb-6 md:mb-0 order-1 md:order-none"
+        >
+          <motion.img
             src={eventHero}
             alt="Event"
             className="rounded-2xl shadow-xl w-full max-w-xs sm:max-w-sm md:max-w-md object-cover h-56 sm:h-64 md:h-80 border-4 border-white"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           />
-        </div>
+        </motion.div>
         {/* Text content */}
-        <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left space-y-5">
+        <motion.div
+          variants={fadeInUp}
+          custom={2}
+          className="flex-1 flex flex-col items-center md:items-start text-center md:text-left space-y-5"
+        >
           <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-indigo-500 to-purple-700 text-transparent bg-clip-text drop-shadow mb-2">
             Welcome to <span className="text-blue-700">EventHive</span>
           </h1>
@@ -129,11 +206,17 @@ const Home = () => {
               Explore Packages
             </button>
           </div>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Who We Are */}
-      <section className="flex flex-col md:flex-row items-center gap-8">
+      <motion.section
+        variants={fadeInUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        className="flex flex-col md:flex-row items-center gap-8"
+      >
         <div className="flex-shrink-0 bg-blue-100 rounded-full p-6">
           <Users className="text-blue-600 w-12 h-12" />
         </div>
@@ -152,7 +235,7 @@ const Home = () => {
             EventHive gives you everything you need in one easy-to-use system.
           </p>
         </div>
-      </section>
+      </motion.section>
 
       {/* How It Works / Feature Highlights */}
       <section className="my-16 max-w-5xl mx-auto">
@@ -160,48 +243,76 @@ const Home = () => {
           How It Works
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 text-center">
-          <div className="flex flex-col items-center">
-            <UserPlus className="w-10 h-10 text-blue-600 mb-2" />
-            <span className="font-semibold text-blue-700">Sign Up</span>
-            <span className="text-xs text-gray-500 mt-1">
-              Create your free account
-            </span>
-          </div>
-          <div className="flex flex-col items-center">
-            <Search className="w-10 h-10 text-purple-600 mb-2" />
-            <span className="font-semibold text-purple-700">
-              Browse Packages
-            </span>
-            <span className="text-xs text-gray-500 mt-1">
-              Find the perfect event package
-            </span>
-          </div>
-          <div className="flex flex-col items-center">
-            <CalendarCheck2 className="w-10 h-10 text-green-600 mb-2" />
-            <span className="font-semibold text-green-700">Book</span>
-            <span className="text-xs text-gray-500 mt-1">
-              Reserve your date and planner
-            </span>
-          </div>
-          <div className="flex flex-col items-center">
-            <MessageCircle className="w-10 h-10 text-pink-600 mb-2" />
-            <span className="font-semibold text-pink-700">Chat</span>
-            <span className="text-xs text-gray-500 mt-1">
-              Communicate and share details
-            </span>
-          </div>
-          <div className="flex flex-col items-center">
-            <Star className="w-10 h-10 text-yellow-500 mb-2" />
-            <span className="font-semibold text-yellow-600">Review</span>
-            <span className="text-xs text-gray-500 mt-1">
-              Rate your experience
-            </span>
-          </div>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <motion.div
+              key={i}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              custom={i}
+              className="flex flex-col items-center"
+            >
+              {i === 0 && (
+                <>
+                  <UserPlus className="w-10 h-10 text-blue-600 mb-2" />
+                  <span className="font-semibold text-blue-700">Sign Up</span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    Create your free account
+                  </span>
+                </>
+              )}
+              {i === 1 && (
+                <>
+                  <Search className="w-10 h-10 text-purple-600 mb-2" />
+                  <span className="font-semibold text-purple-700">
+                    Browse Packages
+                  </span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    Find the perfect event package
+                  </span>
+                </>
+              )}
+              {i === 2 && (
+                <>
+                  <CalendarCheck2 className="w-10 h-10 text-green-600 mb-2" />
+                  <span className="font-semibold text-green-700">Book</span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    Reserve your date and planner
+                  </span>
+                </>
+              )}
+              {i === 3 && (
+                <>
+                  <MessageCircle className="w-10 h-10 text-pink-600 mb-2" />
+                  <span className="font-semibold text-pink-700">Chat</span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    Communicate and share details
+                  </span>
+                </>
+              )}
+              {i === 4 && (
+                <>
+                  <Star className="w-10 h-10 text-yellow-500 mb-2" />
+                  <span className="font-semibold text-yellow-600">Review</span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    Rate your experience
+                  </span>
+                </>
+              )}
+            </motion.div>
+          ))}
         </div>
       </section>
 
       {/* Animated Stats/Counters */}
-      <section className="my-16">
+      <motion.section
+        variants={fadeIn}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        className="my-16"
+      >
         <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
           Our Impact
         </h2>
@@ -211,173 +322,48 @@ const Home = () => {
           we’ve made together:
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
-          <div className="flex flex-col items-center">
-            <span className="text-4xl font-extrabold text-blue-700 mb-2">
-              <AnimatedCounter value={1000} />+
-            </span>
-            <span className="text-gray-700 font-semibold">Events Booked</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-4xl font-extrabold text-purple-700 mb-2">
-              <AnimatedCounter value={500} />+
-            </span>
-            <span className="text-gray-700 font-semibold">Planners</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-4xl font-extrabold text-green-700 mb-2">
-              <AnimatedCounter value={2000} />+
-            </span>
-            <span className="text-gray-700 font-semibold">Clients</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-4xl font-extrabold text-yellow-600 mb-2">
-              <AnimatedCounter value={350} />+
-            </span>
-            <span className="text-gray-700 font-semibold">Reviews</span>
-          </div>
+          {[1000, 500, 2000, 350].map((val, i) => (
+            <motion.div
+              key={i}
+              variants={scaleIn}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              className="flex flex-col items-center"
+            >
+              <span
+                className={`text-4xl font-extrabold ${
+                  [
+                    "text-blue-700",
+                    "text-purple-700",
+                    "text-green-700",
+                    "text-yellow-600",
+                  ][i]
+                } mb-2`}
+              >
+                <AnimatedCounter value={val} />+
+              </span>
+              <span className="text-gray-700 font-semibold">
+                {["Events Booked", "Planners", "Clients", "Reviews"][i]}
+              </span>
+            </motion.div>
+          ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Subscription Plans */}
-      <section className="my-16">
+      <motion.section
+        variants={fadeInUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        className="my-16"
+      >
         <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
           Subscription Plans
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
-          {/* Free Plan */}
-          <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 border-gray-300 order-0">
-            <span className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gray-500 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
-              Starter
-            </span>
-            <h3 className="text-2xl font-extrabold text-gray-800 mb-2">Free</h3>
-            <div className="text-3xl font-bold text-gray-700 mb-4">$0/mo</div>
-            <ul className="text-gray-900 text-sm mb-6 space-y-2">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-gray-500" /> Up to 1
-                event booking/month
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-gray-500" />{" "}
-                Community support
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-gray-500" /> Basic
-                listing for planners
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-gray-500" /> Limited
-                messaging
-              </li>
-            </ul>
-            <button className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
-              Choose Free
-            </button>
-          </div>
-          {/* Basic Plan */}
-          <div className="bg-gradient-to-br from-blue-100 to-blue-300 rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 border-blue-400 order-1">
-            <h3 className="text-2xl font-extrabold text-blue-800 mb-2">
-              Basic
-            </h3>
-            <div className="text-3xl font-bold text-blue-700 mb-4">$10/mo</div>
-            <ul className="text-blue-900 text-sm mb-6 space-y-2">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-blue-600" /> Up to 3
-                event bookings/month
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-blue-600" /> Email
-                support
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-blue-600" /> Basic
-                analytics
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-blue-600" />{" "}
-                Standard listing for planners
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-blue-600" /> Limited
-                messaging
-              </li>
-            </ul>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
-              Choose Basic
-            </button>
-          </div>
-          {/* Pro Plan (Most Popular) */}
-          <div className="relative bg-gradient-to-br from-purple-100 to-purple-300 rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 border-purple-400 order-2">
-            <span className="absolute -top-5 left-1/2 -translate-x-1/2 bg-purple-700 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
-              Most Popular
-            </span>
-            <h3 className="text-2xl font-extrabold text-purple-800 mb-2">
-              Pro
-            </h3>
-            <div className="text-3xl font-bold text-purple-700 mb-4">
-              $25/mo
-            </div>
-            <ul className="text-purple-900 text-sm mb-6 space-y-2">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-purple-600" /> Up to
-                10 event bookings/month
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-purple-600" />{" "}
-                Standard customer support
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-purple-600" /> Basic
-                analytics dashboard
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-purple-600" />{" "}
-                Standard listing for planners
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-purple-600" />{" "}
-                Unlimited messaging
-              </li>
-            </ul>
-            <button className="bg-purple-700 hover:bg-purple-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
-              Choose Pro
-            </button>
-          </div>
-          {/* Enterprise Plan */}
-          <div className="bg-gradient-to-br from-indigo-100 to-indigo-300 rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 border-indigo-400 order-3">
-            <h3 className="text-2xl font-extrabold text-indigo-800 mb-2">
-              Enterprise
-            </h3>
-            <div className="text-3xl font-bold text-indigo-700 mb-4">
-              $50/mo
-            </div>
-            <ul className="text-indigo-900 text-sm mb-6 space-y-2">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
-                Unlimited event bookings
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
-                Priority customer support
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
-                Advanced analytics dashboard
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
-                Featured listing for planners
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="inline w-5 h-5 text-indigo-600" />{" "}
-                Unlimited messaging
-              </li>
-            </ul>
-            <button className="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
-              Choose Enterprise
-            </button>
-          </div>
-        </div>
-      </section>
+        <DynamicPlansSection />
+      </motion.section>
 
       {/* Our Services */}
       <section>
@@ -385,53 +371,95 @@ const Home = () => {
           Features
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <Package className="w-10 h-10 text-blue-600 mb-2" />
-            <h3 className="font-semibold text-lg">Event Package Listings</h3>
-            <p className="text-gray-600 text-sm">
-              Browse and compare planner packages by category and budget.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <CalendarCheck className="w-10 h-10 text-purple-600 mb-2" />
-            <h3 className="font-semibold text-lg">Real-Time Booking System</h3>
-            <p className="text-gray-600 text-sm">
-              Book planners based on availability and event type.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <MessageCircle className="w-10 h-10 text-pink-600 mb-2" />
-            <h3 className="font-semibold text-lg">Secure In-App Messaging</h3>
-            <p className="text-gray-600 text-sm">
-              Communicate directly with planners and stay updated.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <FileImage className="w-10 h-10 text-green-600 mb-2" />
-            <h3 className="font-semibold text-lg">File/Image Sharing</h3>
-            <p className="text-gray-600 text-sm">
-              Upload mood boards, inspiration photos, and documents.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <LayoutDashboard className="w-10 h-10 text-yellow-500 mb-2" />
-            <h3 className="font-semibold text-lg">Dashboard for Planners</h3>
-            <p className="text-gray-600 text-sm">
-              Manage bookings, payments, and packages from a single interface.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <CreditCard className="w-10 h-10 text-blue-500 mb-2" />
-            <h3 className="font-semibold text-lg">Payment Integration</h3>
-            <p className="text-gray-600 text-sm">
-              Pay securely via M-Pesa or Stripe.
-            </p>
-          </div>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <motion.div
+              key={i}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              custom={i}
+              whileHover={{
+                scale: 1.04,
+                boxShadow: "0 8px 32px rgba(80,80,200,0.08)",
+              }}
+              className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100"
+            >
+              {i === 0 && (
+                <>
+                  <Package className="w-10 h-10 text-blue-600 mb-2" />
+                  <h3 className="font-semibold text-lg">
+                    Event Package Listings
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Browse and compare planner packages by category and budget.
+                  </p>
+                </>
+              )}
+              {i === 1 && (
+                <>
+                  <CalendarCheck className="w-10 h-10 text-purple-600 mb-2" />
+                  <h3 className="font-semibold text-lg">
+                    Real-Time Booking System
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Book planners based on availability and event type.
+                  </p>
+                </>
+              )}
+              {i === 2 && (
+                <>
+                  <MessageCircle className="w-10 h-10 text-pink-600 mb-2" />
+                  <h3 className="font-semibold text-lg">
+                    Secure In-App Messaging
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Communicate directly with planners and stay updated.
+                  </p>
+                </>
+              )}
+              {i === 3 && (
+                <>
+                  <FileImage className="w-10 h-10 text-green-600 mb-2" />
+                  <h3 className="font-semibold text-lg">File/Image Sharing</h3>
+                  <p className="text-gray-600 text-sm">
+                    Upload mood boards, inspiration photos, and documents.
+                  </p>
+                </>
+              )}
+              {i === 4 && (
+                <>
+                  <LayoutDashboard className="w-10 h-10 text-yellow-500 mb-2" />
+                  <h3 className="font-semibold text-lg">
+                    Dashboard for Planners
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Manage bookings, payments, and packages from a single
+                    interface.
+                  </p>
+                </>
+              )}
+              {i === 5 && (
+                <>
+                  <CreditCard className="w-10 h-10 text-blue-500 mb-2" />
+                  <h3 className="font-semibold text-lg">Payment Integration</h3>
+                  <p className="text-gray-600 text-sm">
+                    Pay securely via M-Pesa or Stripe.
+                  </p>
+                </>
+              )}
+            </motion.div>
+          ))}
         </div>
       </section>
 
       {/* Who We Serve */}
-      <section>
+      <motion.section
+        variants={fadeInUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+      >
         <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
           Who We Serve
         </h2>
@@ -470,58 +498,91 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Advantages */}
-      <section>
+      <motion.section
+        variants={fadeInUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+      >
         <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
           Why Choose EventHive?
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <LayoutDashboard className="w-10 h-10 text-blue-600 mb-2" />
-            <h3 className="font-semibold text-lg">All-in-One Platform</h3>
-            <p className="text-gray-600 text-sm">
-              Manage planning, booking, and communication from one place — no
-              back-and-forth emails.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <ShieldCheck className="w-10 h-10 text-purple-600 mb-2" />
-            <h3 className="font-semibold text-lg">Transparent & Trusted</h3>
-            <p className="text-gray-600 text-sm">
-              Work with verified planners with real reviews and clear pricing.
-              No hidden fees.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <Smartphone className="w-10 h-10 text-green-600 mb-2" />
-            <h3 className="font-semibold text-lg">Built for Africa</h3>
-            <p className="text-gray-600 text-sm">
-              Mobile-first, M-Pesa ready, and locally relevant — designed for
-              your market.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <CalendarClock className="w-10 h-10 text-pink-600 mb-2" />
-            <h3 className="font-semibold text-lg">
-              Smart Calendar & Dashboards
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Stay organized with reminders, booking status, and visual
-              timelines.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100">
-            <Globe className="w-10 h-10 text-blue-500 mb-2" />
-            <h3 className="font-semibold text-lg">Secure & Scalable</h3>
-            <p className="text-gray-600 text-sm">
-              Built with the latest tech to ensure security, scalability, and
-              smooth performance.
-            </p>
-          </div>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <motion.div
+              key={i}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              custom={i}
+              whileHover={{
+                scale: 1.04,
+                boxShadow: "0 8px 32px rgba(80,80,200,0.08)",
+              }}
+              className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center space-y-3 border border-gray-100"
+            >
+              {i === 0 && (
+                <>
+                  <LayoutDashboard className="w-10 h-10 text-blue-600 mb-2" />
+                  <h3 className="font-semibold text-lg">All-in-One Platform</h3>
+                  <p className="text-gray-600 text-sm">
+                    Manage planning, booking, and communication from one place —
+                    no back-and-forth emails.
+                  </p>
+                </>
+              )}
+              {i === 1 && (
+                <>
+                  <ShieldCheck className="w-10 h-10 text-purple-600 mb-2" />
+                  <h3 className="font-semibold text-lg">
+                    Transparent & Trusted
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Work with verified planners with real reviews and clear
+                    pricing. No hidden fees.
+                  </p>
+                </>
+              )}
+              {i === 2 && (
+                <>
+                  <Smartphone className="w-10 h-10 text-green-600 mb-2" />
+                  <h3 className="font-semibold text-lg">Built for Africa</h3>
+                  <p className="text-gray-600 text-sm">
+                    Mobile-first, M-Pesa ready, and locally relevant — designed
+                    for your market.
+                  </p>
+                </>
+              )}
+              {i === 3 && (
+                <>
+                  <CalendarClock className="w-10 h-10 text-pink-600 mb-2" />
+                  <h3 className="font-semibold text-lg">
+                    Smart Calendar & Dashboards
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Stay organized with reminders, booking status, and visual
+                    timelines.
+                  </p>
+                </>
+              )}
+              {i === 4 && (
+                <>
+                  <Globe className="w-10 h-10 text-blue-500 mb-2" />
+                  <h3 className="font-semibold text-lg">Secure & Scalable</h3>
+                  <p className="text-gray-600 text-sm">
+                    Built with the latest tech to ensure security, scalability,
+                    and smooth performance.
+                  </p>
+                </>
+              )}
+            </motion.div>
+          ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Packages Preview Section */}
       <section>
@@ -540,9 +601,18 @@ const Home = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-6">
-            {previewPackages.map((pkg) => (
-              <div
+            {previewPackages.map((pkg, i) => (
+              <motion.div
                 key={pkg._id}
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={i}
+                whileHover={{
+                  scale: 1.04,
+                  boxShadow: "0 8px 32px rgba(80,80,200,0.08)",
+                }}
                 className="bg-white rounded-2xl shadow-lg p-5 flex flex-col h-full border border-blue-100 hover:shadow-xl transition group"
               >
                 <div className="w-full h-40 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
@@ -579,31 +649,50 @@ const Home = () => {
                 >
                   <CalendarIcon className="w-4 h-4" /> View & Book
                 </button>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
         <div className="flex justify-center">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => navigate("/packages")}
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold px-6 py-3 rounded-full shadow hover:from-blue-700 hover:to-purple-700 transition"
           >
             See All Packages
-          </button>
+          </motion.button>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="my-16 max-w-3xl mx-auto">
+      <motion.section
+        variants={fadeInUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        className="my-16 max-w-3xl mx-auto"
+      >
         <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
           Frequently Asked Questions
         </h2>
         <FAQ />
-      </section>
+      </motion.section>
 
       {/* Call-to-Action Banner */}
-      <section className="my-16">
-        <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-white">
+      <motion.section
+        variants={fadeInUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        className="my-16"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-white"
+        >
           <div className="flex-1 text-center md:text-left">
             <h3 className="text-2xl font-bold mb-2">
               Ready to plan your next event?
@@ -628,9 +717,9 @@ const Home = () => {
               Contact Support
             </button>
           </div>
-        </div>
-      </section>
-    </div>
+        </motion.div>
+      </motion.section>
+    </motion.div>
   );
 };
 
@@ -666,8 +755,10 @@ function FAQ() {
   return (
     <div className="space-y-4">
       {faqs.map((faq, idx) => (
-        <div
+        <motion.div
           key={idx}
+          layout
+          initial={{ borderRadius: 12 }}
           className="border border-gray-200 rounded-lg overflow-hidden"
         >
           <button
@@ -676,23 +767,151 @@ function FAQ() {
             aria-expanded={open === idx}
           >
             {faq.q}
-            <span
-              className={`ml-2 transition-transform ${
-                open === idx ? "rotate-180" : ""
-              }`}
+            <motion.span
+              animate={{ rotate: open === idx ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="ml-2"
             >
               ▼
-            </span>
+            </motion.span>
           </button>
-          <div
-            className={`px-4 pb-3 text-gray-700 text-sm transition-all duration-300 ${
-              open === idx ? "block" : "hidden"
-            }`}
-          >
-            {faq.a}
-          </div>
-        </div>
+          <AnimatePresence initial={false}>
+            {open === idx && (
+              <motion.div
+                key="content"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="px-4 pb-3 text-gray-700 text-sm overflow-hidden"
+              >
+                {faq.a}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       ))}
+    </div>
+  );
+}
+
+function DynamicPlansSection() {
+  const { backendURL, userData } = useContext(AuthContext);
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPlans();
+    // eslint-disable-next-line
+  }, [backendURL]);
+
+  const fetchPlans = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${backendURL}/api/plans`);
+      const data = await res.json();
+      setPlans(data.plans || []);
+    } catch {
+      setPlans([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCurrentPlanId = () => {
+    if (!userData) return null;
+    if (typeof userData.plan === "string") return userData.plan;
+    if (userData.plan?._id) return userData.plan._id;
+    return null;
+  };
+  const currentPlanId = getCurrentPlanId();
+
+  if (loading) {
+    return (
+      <div className="text-center py-8 text-gray-500">Loading plans...</div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+      {plans.map((plan) => {
+        const isCurrent = currentPlanId === plan._id;
+        const color = planColors[plan.name] || planColors["Free"];
+        return (
+          <motion.div
+            key={plan._id}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            custom={0}
+            whileHover={{
+              scale: 1.04,
+              boxShadow: "0 8px 32px rgba(80,80,200,0.08)",
+            }}
+            className={`relative bg-gradient-to-br ${
+              color.bg
+            } rounded-2xl shadow-lg p-8 flex flex-col items-center border-4 transition-all duration-200 overflow-visible ${
+              isCurrent
+                ? `${color.border} scale-105 ring-4 ring-green-300 mt-8` // add top margin for badge
+                : "border-transparent hover:scale-105 hover:shadow-2xl"
+            }`}
+            style={{ minHeight: "340px" }}
+          >
+            {/* Plan Badge Above Card - Responsive */}
+            {isCurrent && (
+              <div
+                className="absolute left-1/2 flex justify-center w-full"
+                style={{ top: "-2.5rem" }}
+              >
+                <span
+                  className={`px-5 py-2 rounded-full text-base font-bold shadow-xl ${color.badge} text-white border-2 border-white drop-shadow-lg whitespace-nowrap`}
+                >
+                  Current Plan
+                </span>
+              </div>
+            )}
+            <h3 className={`text-2xl font-extrabold mb-2 ${color.text}`}>
+              {plan.name}
+            </h3>
+            <div className={`text-3xl font-bold mb-4 ${color.text}`}>
+              {plan.price === 0 ? "$0/mo" : `$${plan.price}/mo`}
+            </div>
+            <ul
+              className={`${color.text.replace(
+                "800",
+                "900"
+              )} text-sm mb-6 space-y-2`}
+            >
+              {plan.features &&
+                Object.entries(plan.features).map(([key, value]) =>
+                  value ? (
+                    <li key={key} className="flex items-center gap-2">
+                      <CheckCircle className={`inline w-5 h-5 ${color.icon}`} />
+                      {typeof value === "boolean"
+                        ? key
+                            .replace(/([A-Z])/g, " $1")
+                            .replace(/^./, (str) => str.toUpperCase())
+                        : `${key
+                            .replace(/([A-Z])/g, " $1")
+                            .replace(/^./, (str) =>
+                              str.toUpperCase()
+                            )}: ${value}`}
+                    </li>
+                  ) : null
+                )}
+            </ul>
+            <button
+              className={`font-semibold px-6 py-2 rounded-lg shadow transition text-white w-full ${
+                isCurrent ? "bg-green-400 cursor-not-allowed" : color.button
+              }`}
+              disabled
+            >
+              {isCurrent ? "Current Plan" : `Choose ${plan.name}`}
+            </button>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
