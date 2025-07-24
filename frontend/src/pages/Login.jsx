@@ -24,7 +24,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-      e.preventDefault();
+    e.preventDefault();
 
     if (isLoading) return;
 
@@ -50,7 +50,7 @@ const Login = () => {
           }
           updateToast(loadingToast, "success", successMessages.login);
           setIsLoggedIn(true);
-          getUserData();
+          await getUserData();
           navigate("/");
         } else {
           updateToast(
@@ -71,7 +71,7 @@ const Login = () => {
           }
           updateToast(loadingToast, "success", successMessages.login);
           setIsLoggedIn(true);
-          getUserData();
+          await getUserData();
           navigate("/");
         } else {
           updateToast(
