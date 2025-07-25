@@ -223,6 +223,15 @@ Interactive API docs available at: [http://localhost:5000/api/docs](http://local
 
 ---
 
+## 🛂 Demo Admin Account
+
+To access admin features on the demo site, use the following credentials:
+
+- **Email:** admin@gmail.com
+- **Password:** admin123
+
+---
+
 ## 🏗️ Technical Architecture Overview
 
 ### High-Level Architecture
