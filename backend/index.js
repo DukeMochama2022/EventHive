@@ -17,6 +17,27 @@ const jwt = require("jsonwebtoken");
 const Message = require("./models/Message");
 const contactMessageRoutes = require("./routes/contactMessageRoutes");
 const planRoutes = require("./routes/planRoutes");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
+
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "EventHive API",
+      version: "1.0.0",
+      description: "API documentation for EventHive",
+    },
+    servers: [
+      {
+        url: "http://localhost:5000/api",
+      },
+    ],
+  },
+  apis: ["./routes/*.js", "./models/*.js"], // Adjust as needed
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 const app = express();
 app.use(express.json());
@@ -27,6 +48,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const server = http.createServer(app);
 const io = new Server(server, {

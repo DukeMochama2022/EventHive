@@ -9,13 +9,117 @@ const {
 const protect = require("../middleware/auth");
 const allowRoles = require("../middleware/roleCheck");
 
-// Public: Get all plans
+/**
+ * @swagger
+ * tags:
+ *   name: Plan
+ *   description: Pricing plan endpoints
+ */
+
+/**
+ * @swagger
+ * /plans/:
+ *   get:
+ *     summary: List all plans
+ *     tags: [Plan]
+ *     responses:
+ *       200:
+ *         description: List of plans
+ */
 router.get("/", getAllPlans);
-// Admin: Create plan
+
+/**
+ * @swagger
+ * /plans/:
+ *   post:
+ *     summary: Create a new plan (admin only)
+ *     tags: [Plan]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Plan created
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
 router.post("/", protect, allowRoles("admin"), createPlan);
-// Admin: Update plan
+
+/**
+ * @swagger
+ * /plans/{id}:
+ *   put:
+ *     summary: Update a plan (admin only)
+ *     tags: [Plan]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Plan ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Plan updated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Plan not found
+ */
 router.put("/:id", protect, allowRoles("admin"), updatePlan);
-// Admin: Delete plan
+
+/**
+ * @swagger
+ * /plans/{id}:
+ *   delete:
+ *     summary: Delete a plan (admin only)
+ *     tags: [Plan]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Plan ID
+ *     responses:
+ *       200:
+ *         description: Plan deleted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Plan not found
+ */
 router.delete("/:id", protect, allowRoles("admin"), deletePlan);
 
 module.exports = router;
