@@ -1,7 +1,5 @@
 # EventHive
 
-![EventHive Logo](frontend/src/assets/Party%20Popper%20Logo%20for%20EventHive.png)
-
 EventHive is a modern web application designed to streamline event management for clients, planners, and administrators. Built with a React frontend and an Express/MongoDB backend, EventHive provides a secure and user-friendly platform for organizing and attending events. The platform supports real-time bookings, in-app messaging, planner dashboards, and more, making event planning seamless for all users.
 
 ---
@@ -20,9 +18,9 @@ EventHive is a modern web application designed to streamline event management fo
 
 Below are some screenshots showcasing key features of EventHive:
 
-| Home Page                               | Booking Page                               | Planner Dashboard                            |
-| --------------------------------------- | ------------------------------------------ | -------------------------------------------- |
-| ![Home](frontend/src/assets/homepage.png) | ![Booking](frontend/src/assets/booking.png) | ![Dashboard](frontend/src/assets/dashboard.png) |  ![Auntentication](frontend/src/assets/authentication.png) |
+| Home Page                                 | Booking Page                                | Planner Dashboard                               | Pricing Page                                | Authentication                                            |
+| ----------------------------------------- | ------------------------------------------- | ----------------------------------------------- | ------------------------------------------- | --------------------------------------------------------- |
+| ![Home](frontend/src/assets/homepage.png) | ![Booking](frontend/src/assets/booking.png) | ![Dashboard](frontend/src/assets/dashboard.png) | ![Pricing](frontend/src/assets/pricing.png) | ![Authentication](frontend/src/assets/authentication.png) |
 
 ---
 
