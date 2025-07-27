@@ -9,6 +9,7 @@ const AdminUserManager = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
   const [deletingId, setDeletingId] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -50,11 +51,36 @@ const AdminUserManager = () => {
     }
   };
 
+  const handleRoleUpdate = async (userId, newRole) => {
+    setUpdatingId(userId);
+    try {
+      const res = await axios.patch(
+        `${backendURL}/api/user/${userId}/role`,
+        { role: newRole },
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        // Update the user in the local state
+        setUsers((prev) =>
+          prev.map((user) =>
+            user._id === userId ? { ...user, role: newRole } : user
+          )
+        );
+        alert(`User role updated to ${newRole} successfully!`);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update user role.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const filteredUsers =
     filter === "all" ? users : users.filter((u) => u.role === filter);
 
   return (
-    <div className="max-w-5xl mx-auto py-8">
+    <div className="max-w-6xl mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6 text-blue-800">Manage Users</h1>
       <div className="mb-4 flex flex-wrap gap-2 items-center">
         <label className="font-semibold text-gray-700">Filter by role:</label>
@@ -82,7 +108,12 @@ const AdminUserManager = () => {
               <tr className="bg-blue-50">
                 <th className="px-4 py-2 text-left text-blue-700">Username</th>
                 <th className="px-4 py-2 text-left text-blue-700">Email</th>
-                <th className="px-4 py-2 text-left text-blue-700">Role</th>
+                <th className="px-4 py-2 text-left text-blue-700">
+                  Current Role
+                </th>
+                <th className="px-4 py-2 text-left text-blue-700">
+                  Change Role
+                </th>
                 <th className="px-4 py-2 text-left text-blue-700">Actions</th>
               </tr>
             </thead>
@@ -94,13 +125,42 @@ const AdminUserManager = () => {
                   </td>
                   <td className="px-4 py-2 text-blue-700">{user.email}</td>
                   <td className="px-4 py-2 text-gray-700 capitalize">
-                    {user.role}
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        user.role === "admin"
+                          ? "bg-red-100 text-red-800"
+                          : user.role === "planner"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2">
+                    <select
+                      value={user.role}
+                      onChange={(e) =>
+                        handleRoleUpdate(user._id, e.target.value)
+                      }
+                      disabled={updatingId === user._id}
+                      className="border rounded px-2 py-1 text-sm disabled:opacity-50"
+                    >
+                      <option value="client">Client</option>
+                      <option value="planner">Planner</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    {updatingId === user._id && (
+                      <span className="ml-2 text-xs text-gray-500">
+                        Updating...
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-2">
                     <button
                       onClick={() => handleDelete(user._id)}
                       disabled={deletingId === user._id}
-                      className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow disabled:opacity-50"
+                      className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-1 rounded shadow disabled:opacity-50 text-sm"
                     >
                       {deletingId === user._id ? "Deleting..." : "Delete"}
                     </button>

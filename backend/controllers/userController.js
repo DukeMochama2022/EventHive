@@ -111,4 +111,57 @@ const updateUserPlan = async (req, res) => {
   }
 };
 
-module.exports = { getUserData, getAllUsers, deleteUser, updateUserPlan };
+// Update user role (admin only)
+const updateUserRole = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { role } = req.body;
+
+    // Validate role
+    if (!["client", "planner", "admin"].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role. Must be 'client', 'planner', or 'admin'.",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Prevent admin from changing their own role
+    if (userId === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot change your own role",
+      });
+    }
+
+    // Update the user's role
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true }
+    ).select("_id username email role");
+
+    res.json({
+      success: true,
+      message: `User role updated to ${role} successfully`,
+      user: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = {
+  getUserData,
+  getAllUsers,
+  deleteUser,
+  updateUserPlan,
+  updateUserRole,
+};

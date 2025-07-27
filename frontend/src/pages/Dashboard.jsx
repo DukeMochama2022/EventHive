@@ -9,6 +9,7 @@ import {
   BarChart2,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import useUnreadCount from "../hooks/useUnreadCount";
 import axios from "axios";
@@ -128,7 +129,7 @@ const Sidebar = ({ mobile = false, open = false, onClose = () => {} }) => {
                 }
                 onClick={mobile ? onClose : undefined}
               >
-                <LayoutDashboard className="w-5 h-5" />
+                <Users className="w-5 h-5" />
                 Manage Users
               </NavLink>
             </>
