@@ -17,7 +17,8 @@ export const AppContextProvider = ({ children }) => {
       const { data } = await axios.get(backendURL + "/api/auth/is-auth");
       if (data.success) {
         setIsLoggedIn(true);
-        getUserData();
+        // Set user data directly from the is-auth response
+        setUserData(data.user);
       } else {
         setIsLoggedIn(false);
         setUserData(false);
@@ -36,6 +37,7 @@ export const AppContextProvider = ({ children }) => {
     } catch (error) {
       if (error.response && error.response.status === 401) {
         setUserData(false);
+        setIsLoggedIn(false);
       } else {
         toast.error(error.message);
       }

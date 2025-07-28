@@ -36,6 +36,7 @@ import PricingPlans from "./pages/PricingPlans";
 import Contact from "./pages/Contact";
 import { lazy } from "react";
 import AdminUserManager from "./components/AdminUserManager";
+import TestEmail from "./pages/TestEmail";
 
 function AppContent() {
   const location = useLocation();
@@ -59,6 +60,7 @@ function AppContent() {
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/pricing" element={<PricingPlans />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/test-email" element={<TestEmail />} />
           {/* Dashboard routes with nested children */}
           <Route
             path="/dashboard"

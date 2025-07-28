@@ -5,8 +5,11 @@ const {
   login,
   logout,
   isAuthenticated,
+  requestPasswordReset,
+  resetPassword,
 } = require("../controllers/authController");
 const protect = require("../middleware/auth");
+const emailService = require("../utils/emailService");
 
 /**
  * @swagger
@@ -104,5 +107,58 @@ router.post("/logout", logout);
  *         description: Not authenticated
  */
 router.get("/is-auth", protect, isAuthenticated);
+
+/**
+ * @swagger
+ * /auth/request-password-reset:
+ *   post:
+ *     summary: Request a password reset
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset email sent
+ *       400:
+ *         description: Invalid input
+ */
+router.post("/request-password-reset", requestPasswordReset);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset password with token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - newPassword
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid token or input
+ */
+router.post("/reset-password", resetPassword);
 
 module.exports = router;

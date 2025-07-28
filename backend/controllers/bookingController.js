@@ -2,6 +2,7 @@ const Booking = require("../models/Booking");
 const EventPackage = require("../models/EventPackage");
 const User = require("../models/User");
 const Plan = require("../models/Plan");
+const emailService = require("../utils/emailService");
 
 // Create a new booking
 const createBooking = async (req, res) => {
@@ -85,6 +86,35 @@ const createBooking = async (req, res) => {
       package: packageId,
       date: eventDate,
       message,
+    });
+
+    // Populate the booking with package and user details for email
+    const populatedBooking = await Booking.findById(booking._id)
+      .populate('package')
+      .populate('client', 'username email')
+      .populate('planner', 'username email');
+
+    // Send booking confirmation emails (don't wait for them to complete)
+    const bookingData = {
+      packageName: populatedBooking.package.title || 'Event Package',
+      clientName: populatedBooking.client.username,
+      clientEmail: populatedBooking.client.email,
+      plannerName: populatedBooking.planner.username,
+      plannerEmail: populatedBooking.planner.email,
+      date: eventDate,
+      time: 'To be confirmed with planner', // Since there's no duration field
+      location: populatedBooking.package.location || 'To be confirmed',
+      amount: populatedBooking.package.price || 0
+    };
+
+    // Send confirmation email to client
+    emailService.sendBookingConfirmation(user.email, bookingData).catch(error => {
+      console.error('Failed to send booking confirmation email to client:', error);
+    });
+
+    // Send notification email to planner
+    emailService.sendNewBookingNotification(plannerUser.email, bookingData).catch(error => {
+      console.error('Failed to send new booking notification to planner:', error);
     });
 
     res.status(201).json({ success: true, booking });
