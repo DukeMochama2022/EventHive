@@ -30,7 +30,10 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://localhost:5000/api",
+        url:
+          process.env.NODE_ENV === "production"
+            ? "https://eventhive-backend.onrender.com/api"
+            : "http://localhost:5000/api",
       },
     ],
   },
@@ -53,7 +56,7 @@ app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://event-hive-red.vercel.app"],
+    origin: ["https://event-hive-red.vercel.app", "http://localhost:5173"],
     credentials: true,
   },
 });
