@@ -37,6 +37,7 @@ import Contact from "./pages/Contact";
 import { lazy } from "react";
 import AdminUserManager from "./components/AdminUserManager";
 import TestEmail from "./pages/TestEmail";
+import ResetPassword from "./pages/ResetPassword";
 
 function AppContent() {
   const location = useLocation();
@@ -57,6 +58,7 @@ function AppContent() {
           <Route path="/packages" element={<PublicPackages />} />
           <Route path="/packages/:id" element={<PackageDetails />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/pricing" element={<PricingPlans />} />
           <Route path="/contact" element={<Contact />} />
