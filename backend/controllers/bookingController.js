@@ -90,32 +90,42 @@ const createBooking = async (req, res) => {
 
     // Populate the booking with package and user details for email
     const populatedBooking = await Booking.findById(booking._id)
-      .populate('package')
-      .populate('client', 'username email')
-      .populate('planner', 'username email');
+      .populate("package")
+      .populate("client", "username email")
+      .populate("planner", "username email");
 
     // Send booking confirmation emails (don't wait for them to complete)
     const bookingData = {
-      packageName: populatedBooking.package.title || 'Event Package',
+      packageName: populatedBooking.package.title || "Event Package",
       clientName: populatedBooking.client.username,
       clientEmail: populatedBooking.client.email,
       plannerName: populatedBooking.planner.username,
       plannerEmail: populatedBooking.planner.email,
       date: eventDate,
-      time: 'To be confirmed with planner', // Since there's no duration field
-      location: populatedBooking.package.location || 'To be confirmed',
-      amount: populatedBooking.package.price || 0
+      time: "To be confirmed with planner", // Since there's no duration field
+      location: populatedBooking.package.location || "To be confirmed",
+      amount: populatedBooking.package.price || 0,
     };
 
     // Send confirmation email to client
-    emailService.sendBookingConfirmation(user.email, bookingData).catch(error => {
-      console.error('Failed to send booking confirmation email to client:', error);
-    });
+    emailService
+      .sendBookingConfirmation(user.email, bookingData)
+      .catch((error) => {
+        console.error(
+          "Failed to send booking confirmation email to client:",
+          error
+        );
+      });
 
     // Send notification email to planner
-    emailService.sendNewBookingNotification(plannerUser.email, bookingData).catch(error => {
-      console.error('Failed to send new booking notification to planner:', error);
-    });
+    emailService
+      .sendNewBookingNotification(plannerUser.email, bookingData)
+      .catch((error) => {
+        console.error(
+          "Failed to send new booking notification to planner:",
+          error
+        );
+      });
 
     res.status(201).json({ success: true, booking });
   } catch (error) {
@@ -215,6 +225,37 @@ const updateBookingStatus = async (req, res) => {
           message: "Only the booking client can cancel this booking.",
         });
       }
+
+      // Send cancellation notification to planner before deleting
+      try {
+        const populatedBooking = await Booking.findById(booking._id)
+          .populate("package")
+          .populate("client", "username email")
+          .populate("planner", "username email");
+
+        const bookingData = {
+          packageName: populatedBooking.package?.name || "Event Package",
+          clientName: populatedBooking.client?.username || "Client",
+          clientEmail: populatedBooking.client?.email,
+          plannerName: populatedBooking.planner?.username || "Event Planner",
+          plannerEmail: populatedBooking.planner?.email,
+          date: populatedBooking.date,
+          amount: populatedBooking.package?.price || 0,
+        };
+
+        emailService
+          .sendBookingCancelledNotification(
+            populatedBooking.planner.email,
+            bookingData
+          )
+          .catch((error) => {
+            console.error("Failed to send booking cancelled email:", error);
+          });
+      } catch (emailError) {
+        console.error("Error sending booking cancelled email:", emailError);
+        // Don't fail the request if email fails
+      }
+
       // Delete the booking from the database
       await booking.deleteOne();
       return res.json({
@@ -243,6 +284,59 @@ const updateBookingStatus = async (req, res) => {
 
     booking.status = status;
     await booking.save();
+
+    // Send email notifications based on status change
+    try {
+      // Populate booking with necessary data for email
+      const populatedBooking = await Booking.findById(booking._id)
+        .populate("package")
+        .populate("client", "username email")
+        .populate("planner", "username email");
+
+      const bookingData = {
+        packageName: populatedBooking.package?.name || "Event Package",
+        clientName: populatedBooking.client?.username || "Client",
+        clientEmail: populatedBooking.client?.email,
+        plannerName: populatedBooking.planner?.username || "Event Planner",
+        plannerEmail: populatedBooking.planner?.email,
+        date: populatedBooking.date,
+        amount: populatedBooking.package?.price || 0,
+      };
+
+      // Send appropriate email based on status
+      if (status === "accepted") {
+        emailService
+          .sendBookingAcceptedNotification(
+            populatedBooking.client.email,
+            bookingData
+          )
+          .catch((error) => {
+            console.error("Failed to send booking accepted email:", error);
+          });
+      } else if (status === "rejected") {
+        emailService
+          .sendBookingRejectedNotification(
+            populatedBooking.client.email,
+            bookingData
+          )
+          .catch((error) => {
+            console.error("Failed to send booking rejected email:", error);
+          });
+      } else if (status === "completed") {
+        emailService
+          .sendBookingCompletedNotification(
+            populatedBooking.client.email,
+            bookingData
+          )
+          .catch((error) => {
+            console.error("Failed to send booking completed email:", error);
+          });
+      }
+    } catch (emailError) {
+      console.error("Error sending booking status email:", emailError);
+      // Don't fail the request if email fails
+    }
+
     res.json({ success: true, booking });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
