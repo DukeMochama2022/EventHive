@@ -115,7 +115,7 @@ const createBooking = async (req, res) => {
           "Failed to send booking confirmation email to client:",
           error
         );
-      });
+    });
 
     // Send notification email to planner
     emailService
@@ -125,7 +125,7 @@ const createBooking = async (req, res) => {
           "Failed to send new booking notification to planner:",
           error
         );
-      });
+    });
 
     res.status(201).json({ success: true, booking });
   } catch (error) {
