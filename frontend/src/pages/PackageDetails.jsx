@@ -327,6 +327,17 @@ const PackageDetails = () => {
                 <span className="font-semibold">Email:</span>{" "}
                 {pkg.planner?.email || "-"}
               </div>
+              {pkg.planner?._id && (
+                <div className="mt-3">
+                  <Link
+                    to={`/user/${pkg.planner._id}`}
+                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium text-sm"
+                  >
+                    <User className="w-4 h-4" />
+                    View Planner Profile
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
           {/* Reviews Section */}
@@ -369,6 +380,14 @@ const PackageDetails = () => {
                           <span className="font-semibold text-blue-700">
                             {r.client?.username || "Client"}
                           </span>
+                          {r.client?._id && (
+                            <Link
+                              to={`/user/${r.client._id}`}
+                              className="text-xs text-gray-500 hover:text-gray-700"
+                            >
+                              (View Profile)
+                            </Link>
+                          )}
                           <span className="text-yellow-600 font-bold">
                             {r.rating}★
                           </span>

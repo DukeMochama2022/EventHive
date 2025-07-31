@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { Loader2, CalendarCheck2, AlertCircle, Package } from "lucide-react";
@@ -125,6 +126,14 @@ const BookingsList = () => {
                 </div>
                 <div className="text-gray-500 text-xs mb-1">
                   Planner: {booking.planner?.username || "(Unknown)"}
+                  {booking.planner?._id && (
+                    <Link
+                      to={`/user/${booking.planner._id}`}
+                      className="ml-2 text-blue-600 hover:text-blue-700"
+                    >
+                      (View Profile)
+                    </Link>
+                  )}
                 </div>
                 {booking.message && (
                   <div className="text-gray-500 text-xs mt-2">

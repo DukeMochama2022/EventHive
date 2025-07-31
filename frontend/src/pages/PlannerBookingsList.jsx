@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import {
@@ -272,6 +273,14 @@ const PlannerBookingsList = () => {
               <div>
                 <span className="font-semibold">Client:</span>{" "}
                 {selectedBooking.client?.username}
+                {selectedBooking.client?._id && (
+                  <Link
+                    to={`/user/${selectedBooking.client._id}`}
+                    className="ml-2 text-blue-600 hover:text-blue-700 text-sm"
+                  >
+                    (View Profile)
+                  </Link>
+                )}
               </div>
               <div>
                 <span className="font-semibold">Planner:</span>{" "}
