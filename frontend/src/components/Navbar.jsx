@@ -98,6 +98,16 @@ const Navbar = () => {
                   {userData.role}
                 </span>
               </div>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  `text-gray-700 hover:text-blue-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                    isActive ? "bg-blue-100 text-blue-800 font-bold" : ""
+                  }`
+                }
+              >
+                Profile
+              </NavLink>
               <button
                 onClick={logout}
                 className="ml-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:from-indigo-600 cursor-pointer hover:to-purple-700 transition shadow"
@@ -181,18 +191,32 @@ const Navbar = () => {
               Pricing
             </NavLink>
             {isLoggedIn && userData && (
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  `block text-gray-700 hover:text-purple-600 font-medium transition px-3 py-2 rounded-md text-sm ${
-                    isActive ? "bg-purple-100 text-purple-800 font-bold" : ""
-                  }`
-                }
-                onClick={() => setMenuOpen(false)}
-                role="menuitem"
-              >
-                Dashboard
-              </NavLink>
+              <>
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) =>
+                    `block text-gray-700 hover:text-purple-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                      isActive ? "bg-purple-100 text-purple-800 font-bold" : ""
+                    }`
+                  }
+                  onClick={() => setMenuOpen(false)}
+                  role="menuitem"
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink
+                  to="/profile"
+                  className={({ isActive }) =>
+                    `block text-gray-700 hover:text-blue-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                      isActive ? "bg-blue-100 text-blue-800 font-bold" : ""
+                    }`
+                  }
+                  onClick={() => setMenuOpen(false)}
+                  role="menuitem"
+                >
+                  Profile
+                </NavLink>
+              </>
             )}
             {isLoggedIn && userData ? (
               <>

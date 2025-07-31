@@ -1,4 +1,6 @@
 const express = require("express");
+const multer = require("multer");
+const upload = require("../utils/multer");
 
 const router = express.Router();
 const protect = require("../middleware/auth");
@@ -8,6 +10,9 @@ const {
   deleteUser,
   updateUserPlan,
   updateUserRole,
+  updateUserProfile,
+  uploadProfilePicture,
+  getUserProfile,
 } = require("../controllers/userController");
 const allowRoles = require("../middleware/roleCheck");
 
@@ -144,6 +149,112 @@ router.patch("/plan", protect, updateUserPlan);
  *       404:
  *         description: User not found
  */
+/**
+ * @swagger
+ * /user/profile:
+ *   patch:
+ *     summary: Update user profile
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *               website:
+ *                 type: string
+ *               socialMedia:
+ *                 type: object
+ *                 properties:
+ *                   facebook:
+ *                     type: string
+ *                   twitter:
+ *                     type: string
+ *                   instagram:
+ *                     type: string
+ *                   linkedin:
+ *                     type: string
+ *               specialization:
+ *                 type: string
+ *               experience:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
+ */
+router.patch("/profile", protect, updateUserProfile);
+
+/**
+ * @swagger
+ * /user/profile-picture:
+ *   post:
+ *     summary: Upload profile picture
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Profile picture uploaded successfully
+ *       400:
+ *         description: No image file provided
+ *       401:
+ *         description: Unauthorized
+ */
+router.post(
+  "/profile-picture",
+  protect,
+  upload.single("image"),
+  uploadProfilePicture
+);
+
+/**
+ * @swagger
+ * /user/profile/{userId}:
+ *   get:
+ *     summary: Get user profile (public)
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *       404:
+ *         description: User not found
+ */
+router.get("/profile/:userId", getUserProfile);
+
 router.patch("/:id/role", protect, allowRoles("admin"), updateUserRole);
 
 module.exports = router;

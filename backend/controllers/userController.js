@@ -4,6 +4,7 @@ const Booking = require("../models/Booking");
 const Review = require("../models/Review");
 const Message = require("../models/Message");
 const Plan = require("../models/Plan");
+const cloudinary = require("../utils/cloudinary");
 
 const getUserData = async (req, res) => {
   try {
@@ -18,9 +19,20 @@ const getUserData = async (req, res) => {
     res.json({
       success: true,
       userData: {
-        _id: user._id, // or id: user._id,
+        _id: user._id,
         username: user.username,
+        email: user.email,
         role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        bio: user.bio,
+        profilePicture: user.profilePicture,
+        location: user.location,
+        website: user.website,
+        socialMedia: user.socialMedia,
+        specialization: user.specialization,
+        experience: user.experience,
         plan: user.plan ? { _id: user.plan._id, name: user.plan.name } : null,
       },
     });
@@ -158,10 +170,171 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+// Update user profile
+const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      bio,
+      location,
+      website,
+      socialMedia,
+      specialization,
+      experience,
+    } = req.body;
+
+    const updateData = {
+      firstName,
+      lastName,
+      phoneNumber,
+      bio,
+      location,
+      website,
+      socialMedia,
+      specialization,
+      experience,
+    };
+
+    // Remove undefined fields
+    Object.keys(updateData).forEach(
+      (key) => updateData[key] === undefined && delete updateData[key]
+    );
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true }
+    ).populate("plan");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        bio: user.bio,
+        profilePicture: user.profilePicture,
+        location: user.location,
+        website: user.website,
+        socialMedia: user.socialMedia,
+        specialization: user.specialization,
+        experience: user.experience,
+        plan: user.plan ? { _id: user.plan._id, name: user.plan.name } : null,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Upload profile picture
+const uploadProfilePicture = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image file provided",
+      });
+    }
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "profile-pictures",
+      width: 400,
+      height: 400,
+      crop: "fill",
+    });
+
+    // Update user profile picture
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { profilePicture: result.secure_url },
+      { new: true }
+    ).populate("plan");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile picture updated successfully",
+      profilePicture: result.secure_url,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        bio: user.bio,
+        profilePicture: user.profilePicture,
+        location: user.location,
+        website: user.website,
+        socialMedia: user.socialMedia,
+        specialization: user.specialization,
+        experience: user.experience,
+        plan: user.plan ? { _id: user.plan._id, name: user.plan.name } : null,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get user profile by ID (public)
+const getUserProfile = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const user = await User.findById(userId).select(
+      "username firstName lastName bio profilePicture location website socialMedia specialization experience role"
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      profile: user,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getUserData,
   getAllUsers,
   deleteUser,
   updateUserPlan,
   updateUserRole,
+  updateUserProfile,
+  uploadProfilePicture,
+  getUserProfile,
 };

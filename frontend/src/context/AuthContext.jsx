@@ -8,7 +8,9 @@ export const AuthContext = createContext();
 export const AppContextProvider = ({ children }) => {
   axios.defaults.withCredentials = true;
 
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
+  const backendURL =
+    import.meta.env.VITE_BACKEND_URL ||
+    "https://eventhive-backend.onrender.com";
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(false);
 
