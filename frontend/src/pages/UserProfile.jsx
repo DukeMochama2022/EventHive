@@ -104,7 +104,7 @@ const UserProfile = () => {
     );
   }
 
-  if (!profile) {
+  if (!profile || !profile.username) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -314,42 +314,44 @@ const UserProfile = () => {
                 )}
 
                 {/* User's Packages */}
-                {userPackages.length > 0 && (
+                {userPackages && userPackages.length > 0 && (
                   <div className="bg-white rounded-xl shadow-sm p-6">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">
                       Event Packages
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {userPackages.slice(0, 4).map((pkg) => (
-                        <Link
-                          key={pkg._id}
-                          to={`/packages/${pkg._id}`}
-                          className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition"
-                        >
-                          <h4 className="font-semibold text-gray-800 mb-2">
-                            {pkg.title}
-                          </h4>
-                          <p className="text-gray-600 text-sm mb-2">
-                            {pkg.description.substring(0, 100)}...
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-blue-600 font-semibold">
-                              KSH {pkg.price}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {pkg.category?.name || "Uncategorized"}
-                            </span>
-                          </div>
-                        </Link>
-                      ))}
+                      {userPackages &&
+                        userPackages.slice(0, 4).map((pkg) => (
+                          <Link
+                            key={pkg._id}
+                            to={`/packages/${pkg._id}`}
+                            className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition"
+                          >
+                            <h4 className="font-semibold text-gray-800 mb-2">
+                              {pkg.title}
+                            </h4>
+                            <p className="text-gray-600 text-sm mb-2">
+                              {pkg.description.substring(0, 100)}...
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-blue-600 font-semibold">
+                                KSH {pkg.price}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {pkg.category?.name || "Uncategorized"}
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
                     </div>
-                    {userPackages.length > 4 && (
+                    {userPackages && userPackages.length > 4 && (
                       <div className="mt-4 text-center">
                         <Link
                           to={`/packages?planner=${userId}`}
                           className="text-blue-600 hover:text-blue-700 font-medium"
                         >
-                          View all packages ({userPackages.length})
+                          View all packages (
+                          {userPackages && userPackages.length})
                         </Link>
                       </div>
                     )}
@@ -400,7 +402,7 @@ const UserProfile = () => {
                 {userReviews && userReviews.length > 3 && (
                   <div className="mt-4 text-center">
                     <span className="text-gray-600">
-                      Showing 3 of {userReviews.length} reviews
+                      Showing 3 of {userReviews && userReviews.length} reviews
                     </span>
                   </div>
                 )}
