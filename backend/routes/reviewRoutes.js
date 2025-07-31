@@ -5,6 +5,7 @@ const {
   getPackageReviews,
   editReview,
   deleteReview,
+  getUserReviews,
 } = require("../controllers/reviewController");
 const protect = require("../middleware/auth");
 const setRole = require("../middleware/roleCheck");
@@ -46,6 +47,27 @@ const setRole = require("../middleware/roleCheck");
  *         description: Forbidden
  */
 router.post("/", protect, setRole("client"), addReview);
+
+/**
+ * @swagger
+ * /reviews/user/{userId}:
+ *   get:
+ *     summary: Get all reviews by a user
+ *     tags: [Review]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: List of reviews by user
+ *       404:
+ *         description: User not found
+ */
+router.get("/user/:userId", getUserReviews);
 
 /**
  * @swagger

@@ -74,7 +74,7 @@ const UserProfile = () => {
     const fetchUserReviews = async () => {
       try {
         const { data } = await axios.get(
-          backendURL + `/api/reviews?user=${userId}`
+          backendURL + `/api/reviews/user/${userId}`
         );
         if (data.success) {
           setUserReviews(data.reviews);
@@ -359,44 +359,45 @@ const UserProfile = () => {
             )}
 
             {/* User's Reviews */}
-            {userReviews.length > 0 && (
+            {userReviews && userReviews.length > 0 && (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
                   Reviews
                 </h3>
                 <div className="space-y-4">
-                  {userReviews.slice(0, 3).map((review) => (
-                    <div
-                      key={review._id}
-                      className="border-b border-gray-100 pb-4 last:border-b-0"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${
-                                i < review.rating
-                                  ? "text-yellow-400 fill-current"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
+                  {userReviews &&
+                    userReviews.slice(0, 3).map((review) => (
+                      <div
+                        key={review._id}
+                        className="border-b border-gray-100 pb-4 last:border-b-0"
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating
+                                    ? "text-yellow-400 fill-current"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
-                        <span className="text-sm text-gray-500">
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </span>
+                        <p className="text-gray-700">{review.comment}</p>
+                        {review.package && (
+                          <p className="text-sm text-gray-500 mt-1">
+                            For: {review.package.title}
+                          </p>
+                        )}
                       </div>
-                      <p className="text-gray-700">{review.comment}</p>
-                      {review.package && (
-                        <p className="text-sm text-gray-500 mt-1">
-                          For: {review.package.title}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    ))}
                 </div>
-                {userReviews.length > 3 && (
+                {userReviews && userReviews.length > 3 && (
                   <div className="mt-4 text-center">
                     <span className="text-gray-600">
                       Showing 3 of {userReviews.length} reviews

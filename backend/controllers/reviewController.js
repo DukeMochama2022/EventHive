@@ -101,4 +101,24 @@ const deleteReview = async (req, res) => {
   }
 };
 
-module.exports = { addReview, getPackageReviews, editReview, deleteReview };
+// Get reviews by user
+const getUserReviews = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const reviews = await Review.find({ client: userId })
+      .populate("package", "title")
+      .populate("client", "username")
+      .sort({ createdAt: -1 });
+    res.json({ success: true, reviews });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = {
+  addReview,
+  getPackageReviews,
+  editReview,
+  deleteReview,
+  getUserReviews,
+};
