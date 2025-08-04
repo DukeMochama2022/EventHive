@@ -11,6 +11,9 @@ export const AppContextProvider = ({ children }) => {
   const backendURL =
     import.meta.env.VITE_BACKEND_URL ||
     "https://eventhive-backend.onrender.com";
+    
+  console.log("AuthContext - Backend URL:", backendURL);
+  console.log("AuthContext - VITE_BACKEND_URL:", import.meta.env.VITE_BACKEND_URL);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(false);
 

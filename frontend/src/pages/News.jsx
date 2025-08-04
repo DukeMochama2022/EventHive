@@ -22,6 +22,8 @@ const News = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { backendURL } = useContext(AuthContext);
 
+  console.log("Backend URL:", backendURL);
+
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("search") || "");
@@ -38,6 +40,13 @@ const News = () => {
   const fetchNews = async () => {
     try {
       setLoading(true);
+
+      if (!backendURL) {
+        console.error("Backend URL is undefined");
+        showError("Backend URL is not configured");
+        return;
+      }
+
       const params = new URLSearchParams();
       if (search) params.append("search", search);
       if (tag) params.append("tag", tag);
@@ -45,7 +54,13 @@ const News = () => {
       params.append("page", currentPage);
       params.append("limit", 10);
 
-      const { data } = await axios.get(`${backendURL}/api/news?${params}`);
+      console.log("Fetching news from:", `${backendURL}/api/news?${params}`);
+
+      const { data } = await axios.get(`${backendURL}/api/news?${params}`, {
+        withCredentials: false,
+      });
+
+      console.log("News response:", data);
 
       if (data.success) {
         setNews(data.data);
@@ -53,16 +68,18 @@ const News = () => {
         setTotalItems(data.pagination.totalItems);
       }
     } catch (error) {
-      showError("Failed to fetch news");
       console.error("Error fetching news:", error);
+      console.error("Error response:", error.response);
+      showError("Failed to fetch news");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log("News component mounted, backendURL:", backendURL);
     fetchNews();
-  }, [currentPage, search, tag, featured]);
+  }, [currentPage, search, tag, featured, backendURL]);
 
   useEffect(() => {
     // Update URL params

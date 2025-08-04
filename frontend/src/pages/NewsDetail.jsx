@@ -27,7 +27,9 @@ const NewsDetail = () => {
   const fetchArticle = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${backendURL}/api/news/${id}`);
+      const { data } = await axios.get(`${backendURL}/api/news/${id}`, {
+        withCredentials: false
+      });
 
       if (data.success) {
         setArticle(data.data);
@@ -47,7 +49,8 @@ const NewsDetail = () => {
   const fetchRelatedArticles = async (tag) => {
     try {
       const { data } = await axios.get(
-        `${backendURL}/api/news?tag=${tag}&limit=3`
+        `${backendURL}/api/news?tag=${tag}&limit=3`,
+        { withCredentials: false }
       );
       if (data.success) {
         setRelatedArticles(data.data.filter((article) => article._id !== id));
