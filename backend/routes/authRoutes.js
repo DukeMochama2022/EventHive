@@ -10,6 +10,7 @@ const {
 } = require("../controllers/authController");
 const protect = require("../middleware/auth");
 const emailService = require("../utils/emailService");
+const User = require("../models/User");
 
 /**
  * @swagger
@@ -51,6 +52,52 @@ const emailService = require("../utils/emailService");
  *         description: Invalid input
  */
 router.post("/register", signup);
+
+// Test endpoint for registration debugging
+router.post("/test-register", async (req, res) => {
+  const { username, password, email, role } = req.body;
+  
+  console.log("Test registration attempt:", { username, email, role });
+  
+  try {
+    // Check if user exists
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "User already exists!",
+        debug: "User found in database"
+      });
+    }
+    
+    // Test email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid email format!",
+        debug: "Email validation failed"
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: "Registration test passed",
+      debug: {
+        emailValid: true,
+        userExists: false,
+        email: email
+      }
+    });
+  } catch (error) {
+    console.error("Test registration error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Test failed",
+      debug: error.message
+    });
+  }
+});
 
 /**
  * @swagger

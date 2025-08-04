@@ -499,7 +499,7 @@ const emailService = {
     try {
       const template = emailTemplates.welcome(username);
       const result = await resend.emails.send({
-        from: "EventHive <onboarding@resend.dev>",
+        from: process.env.FROM_EMAIL || "EventHive <onboarding@resend.dev>",
         to: userEmail,
         subject: template.subject,
         html: template.html,
@@ -509,6 +509,7 @@ const emailService = {
       return { success: true, data: result };
     } catch (error) {
       console.error("Error sending welcome email:", error);
+      // Don't fail registration if email fails
       return { success: false, error: error.message };
     }
   },

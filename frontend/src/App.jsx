@@ -36,10 +36,13 @@ import PricingPlans from "./pages/PricingPlans";
 import Contact from "./pages/Contact";
 import { lazy } from "react";
 import AdminUserManager from "./components/AdminUserManager";
+import AdminNewsManager from "./components/AdminNewsManager";
 import TestEmail from "./pages/TestEmail";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
+import News from "./pages/News";
+import NewsDetail from "./pages/NewsDetail";
 
 function AppContent() {
   const location = useLocation();
@@ -66,6 +69,8 @@ function AppContent() {
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/pricing" element={<PricingPlans />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/test-email" element={<TestEmail />} />
           {/* Dashboard routes with nested children */}
           <Route
@@ -113,6 +118,14 @@ function AppContent() {
                   element={
                     <ProtectedRoute requiredRole="admin">
                       <AdminUserManager />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="news"
+                  element={
+                    <ProtectedRoute requiredRole="admin">
+                      <AdminNewsManager />
                     </ProtectedRoute>
                   }
                 />

@@ -71,6 +71,17 @@ const Navbar = () => {
           >
             Pricing
           </NavLink>
+          <NavLink
+            to="/news"
+            className={({ isActive }) =>
+              `nav-link px-3 py-2 rounded-md text-sm font-medium text-green-700 hover:bg-green-100 transition ${
+                isActive ? "bg-green-100 text-green-800 font-bold" : ""
+              }`
+            }
+            role="menuitem"
+          >
+            News
+          </NavLink>
           {isLoggedIn && userData && (
             <NavLink
               to="/dashboard"
@@ -189,6 +200,18 @@ const Navbar = () => {
               role="menuitem"
             >
               Pricing
+            </NavLink>
+            <NavLink
+              to="/news"
+              className={({ isActive }) =>
+                `block text-gray-700 hover:text-green-600 font-medium transition px-3 py-2 rounded-md text-sm ${
+                  isActive ? "bg-green-100 text-green-800 font-bold" : ""
+                }`
+              }
+              onClick={() => setMenuOpen(false)}
+              role="menuitem"
+            >
+              News
             </NavLink>
             {isLoggedIn && userData && (
               <>

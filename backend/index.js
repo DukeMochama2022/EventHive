@@ -17,6 +17,7 @@ const jwt = require("jsonwebtoken");
 const Message = require("./models/Message");
 const contactMessageRoutes = require("./routes/contactMessageRoutes");
 const planRoutes = require("./routes/planRoutes");
+const newsRoutes = require("./routes/newsRoutes");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 
@@ -191,6 +192,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/messages", contactMessageRoutes);
 app.use("/api/plans", planRoutes);
+app.use("/api/news", newsRoutes);
 app.get("/", (req, res) => {
   res.send("EventHive Api running");
 });

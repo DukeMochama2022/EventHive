@@ -7,6 +7,8 @@ const emailService = require("../utils/emailService");
 const signup = async (req, res) => {
   const { username, password, email, role } = req.body;
 
+  console.log("Registration attempt:", { username, email, role }); // Debug log
+
   try {
     if (!username || !password || !email || !role) {
       return res
@@ -54,6 +56,7 @@ const signup = async (req, res) => {
     // Send welcome email (don't wait for it to complete)
     emailService.sendWelcomeEmail(email, username).catch((error) => {
       console.error("Failed to send welcome email:", error);
+      // Don't fail registration if email fails
     });
 
     res.status(201).json({
@@ -67,6 +70,25 @@ const signup = async (req, res) => {
       token, // <-- add token here
     });
   } catch (error) {
+    console.error("Registration error:", error);
+
+    // Handle specific MongoDB errors
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists!",
+      });
+    }
+
+    // Handle validation errors
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({
+        success: false,
+        message: errors.join(", "),
+      });
+    }
+
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
