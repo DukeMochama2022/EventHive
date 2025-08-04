@@ -19,7 +19,12 @@ import { showSuccess, showError } from "../utils/toast";
 import LoadingSpinner from "./LoadingSpinner";
 
 const AdminNewsManager = () => {
-  const { backendURL } = useContext(AuthContext);
+  const { backendURL, userData } = useContext(AuthContext);
+
+  console.log("AdminNewsManager - User data:", userData);
+  console.log("AdminNewsManager - Backend URL:", backendURL);
+  console.log("AdminNewsManager - User role:", userData?.role);
+  console.log("AdminNewsManager - Is user admin?", userData?.role === "admin");
 
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,31 +47,71 @@ const AdminNewsManager = () => {
   const fetchNews = async () => {
     try {
       setLoading(true);
+
+      if (!backendURL) {
+        console.error("Backend URL is undefined");
+        showError("Backend URL is not configured");
+        return;
+      }
+
+      if (!userData) {
+        console.error("User not authenticated");
+        showError("Please log in to access this feature");
+        return;
+      }
+
+      if (userData.role !== "admin") {
+        console.error("User is not admin");
+        showError("You need admin privileges to manage news");
+        return;
+      }
+
       const params = new URLSearchParams();
       if (search) params.append("search", search);
       if (statusFilter) params.append("status", statusFilter);
       params.append("page", currentPage);
       params.append("limit", 10);
 
+      // Ensure axios is configured to send credentials
+      axios.defaults.withCredentials = true;
+
+      console.log("Making admin news request with user:", userData);
+
       const { data } = await axios.get(
-        `${backendURL}/api/news/admin/all?${params}`
+        `${backendURL}/api/news/admin/all?${params}`,
+        { withCredentials: true }
       );
+
+      console.log("News response:", data);
 
       if (data.success) {
         setNews(data.data);
         setTotalPages(data.pagination.totalPages);
+        setTotalItems(data.pagination.totalItems);
       }
     } catch (error) {
-      showError("Failed to fetch news");
       console.error("Error fetching news:", error);
+      console.error("Error response:", error.response);
+      if (error.response?.status === 403) {
+        showError("Access denied. You need admin privileges to manage news.");
+      } else if (error.response?.status === 401) {
+        showError("Please log in to access this feature.");
+      } else {
+        showError("Failed to fetch news");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNews();
-  }, [currentPage, search, statusFilter]);
+    // Only fetch if user is admin
+    if (userData && userData.role === "admin") {
+      fetchNews();
+    } else {
+      console.log("User is not admin, cannot fetch news for management");
+    }
+  }, [currentPage, search, statusFilter, userData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,7 +127,8 @@ const AdminNewsManager = () => {
       if (editingNews) {
         const { data } = await axios.put(
           `${backendURL}/api/news/${editingNews._id}`,
-          submitData
+          submitData,
+          { withCredentials: true }
         );
         if (data.success) {
           showSuccess("News updated successfully");
@@ -92,7 +138,13 @@ const AdminNewsManager = () => {
           fetchNews();
         }
       } else {
-        const { data } = await axios.post(`${backendURL}/api/news`, submitData);
+        const { data } = await axios.post(
+          `${backendURL}/api/news`,
+          submitData,
+          {
+            withCredentials: true,
+          }
+        );
         if (data.success) {
           showSuccess("News created successfully");
           setShowForm(false);
@@ -126,7 +178,9 @@ const AdminNewsManager = () => {
     }
 
     try {
-      const { data } = await axios.delete(`${backendURL}/api/news/${id}`);
+      const { data } = await axios.delete(`${backendURL}/api/news/${id}`, {
+        withCredentials: true,
+      });
       if (data.success) {
         showSuccess("News deleted successfully");
         fetchNews();
@@ -172,6 +226,42 @@ const AdminNewsManager = () => {
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  // Check if user data is still loading
+  if (userData === false) {
+    return <LoadingSpinner />;
+  }
+
+  // Check if user is admin
+  if (!userData || userData.role !== "admin") {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-500 mb-4">
+          <svg
+            className="w-16 h-16 mx-auto"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          Access Denied
+        </h3>
+        <p className="text-gray-600">
+          {!userData
+            ? "Please log in to access this feature."
+            : `You need admin privileges to manage news articles. Current role: ${userData.role}`}
+        </p>
+      </div>
+    );
   }
 
   return (

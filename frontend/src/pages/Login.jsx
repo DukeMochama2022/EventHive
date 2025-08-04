@@ -146,6 +146,7 @@ const Login = () => {
                 >
                   <option value="client">Client</option>
                   <option value="planner">Planner</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
             </>
