@@ -111,12 +111,22 @@ const createNews = async (req, res) => {
       });
     }
 
+    // Handle tags - could be string or array
+    let processedTags = [];
+    if (tags) {
+      if (Array.isArray(tags)) {
+        processedTags = tags.map((tag) => tag.trim());
+      } else if (typeof tags === "string") {
+        processedTags = tags.split(",").map((tag) => tag.trim());
+      }
+    }
+
     const news = await News.create({
       title,
       content,
       summary,
       image,
-      tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
+      tags: processedTags,
       status: status || "published",
       featured: featured || false,
       author: req.user.id,
@@ -162,7 +172,14 @@ const updateNews = async (req, res) => {
     if (summary !== undefined) updateData.summary = summary;
     if (image !== undefined) updateData.image = image;
     if (tags !== undefined) {
-      updateData.tags = tags ? tags.split(",").map((tag) => tag.trim()) : [];
+      // Handle tags - could be string or array
+      if (Array.isArray(tags)) {
+        updateData.tags = tags.map((tag) => tag.trim());
+      } else if (typeof tags === "string") {
+        updateData.tags = tags.split(",").map((tag) => tag.trim());
+      } else {
+        updateData.tags = [];
+      }
     }
     if (status) updateData.status = status;
     if (featured !== undefined) updateData.featured = featured;

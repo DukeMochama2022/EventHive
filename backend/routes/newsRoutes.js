@@ -76,28 +76,7 @@ router.get("/", getAllNews);
  */
 router.get("/featured", getFeaturedNews);
 
-/**
- * @swagger
- * /news/{id}:
- *   get:
- *     summary: Get a specific news article
- *     tags: [News]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: News article ID
- *     responses:
- *       200:
- *         description: News article details
- *       404:
- *         description: News article not found
- */
-router.get("/:id", getNewsById);
-
-// Admin routes (protected)
+// Admin routes (protected) - MUST come before /:id route
 /**
  * @swagger
  * /news/admin/all:
@@ -135,7 +114,7 @@ router.get("/:id", getNewsById);
  *       403:
  *         description: Not authorized
  */
-router.get("/admin/all", protect, roleCheck(["admin"]), getAllNewsForAdmin);
+router.get("/admin/all", protect, roleCheck("admin"), getAllNewsForAdmin);
 
 /**
  * @swagger
@@ -162,7 +141,28 @@ router.get("/admin/all", protect, roleCheck(["admin"]), getAllNewsForAdmin);
  *       404:
  *         description: News article not found
  */
-router.get("/admin/:id", protect, roleCheck(["admin"]), getNewsByIdForAdmin);
+router.get("/admin/:id", protect, roleCheck("admin"), getNewsByIdForAdmin);
+
+/**
+ * @swagger
+ * /news/{id}:
+ *   get:
+ *     summary: Get a specific news article
+ *     tags: [News]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: News article ID
+ *     responses:
+ *       200:
+ *         description: News article details
+ *       404:
+ *         description: News article not found
+ */
+router.get("/:id", getNewsById);
 
 /**
  * @swagger
@@ -207,7 +207,7 @@ router.get("/admin/:id", protect, roleCheck(["admin"]), getNewsByIdForAdmin);
  *       403:
  *         description: Not authorized
  */
-router.post("/", protect, roleCheck(["admin"]), createNews);
+router.post("/", protect, roleCheck("admin"), createNews);
 
 /**
  * @swagger
@@ -258,7 +258,7 @@ router.post("/", protect, roleCheck(["admin"]), createNews);
  *       404:
  *         description: News article not found
  */
-router.put("/:id", protect, roleCheck(["admin"]), updateNews);
+router.put("/:id", protect, roleCheck("admin"), updateNews);
 
 /**
  * @swagger
@@ -285,6 +285,6 @@ router.put("/:id", protect, roleCheck(["admin"]), updateNews);
  *       404:
  *         description: News article not found
  */
-router.delete("/:id", protect, roleCheck(["admin"]), deleteNews);
+router.delete("/:id", protect, roleCheck("admin"), deleteNews);
 
 module.exports = router;
